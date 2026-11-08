@@ -189,6 +189,8 @@ function parseTC(str,f){
 function tcDigits(str){return String(str||'').replace(/[\uFF10-\uFF19]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-0xFEE0);}).replace(/[^0-9]/g,'').slice(0,8);}
 function tcFormat(d){return (d.match(/.{1,2}/g)||[]).join(':');}
 function durOf(t){if(t.inF==null||t.outF==null)return'';var b=base(t.fps||'24'),d=t.outF-t.inF;if(d<0)d+=86400*b;var s=Math.round(d/b);return Math.floor(s/60)+':'+pad(s%60);}
+function dateOfMs(ms){var d=new Date(ms);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function syncState(k){var sy=D.settings.tc[k];if(!sy)return 'none';if(sy.fps!==cam(k).fps)return 'fps';return dateOfMs(sy.t0)===today()?'ok':'old';}
 function syncAge(k){var sy=D.settings.tc[k];if(!sy)return null;return (Date.now()-sy.t0)/3600000;}
 
 function toast(msg){var el=document.createElement('div');el.className='toast';el.textContent=msg;document.body.appendChild(el);setTimeout(function(){el.remove();},1800);}
@@ -225,7 +227,9 @@ function vRecord(){
   var scn=findScene(s.cur.scene);
   if(scn)h+='<button class="script" data-scn="'+scn.no+'"><span style="display:flex;justify-content:space-between;align-items:baseline;width:100%"><span class="hd">'+esc(scn.no+'　'+scn.head)+'</span><span class="lbl">台本 p.'+scn.page+'</span></span><span class="ln">'+esc(firstLine(scn))+'</span></button>';
   else h+='<button class="script" data-go="script"><span class="ln">'+(script()?'台本にシーン'+esc(s.cur.scene)+'がありません':'台本が未読み込みです（タップで読み込み）')+'</span></button>';
-  h+='<div class="g3"><button class="tcb" data-act="tcIn"><span class="lbl">TC IN</span><b>'+(r.tcIn||'--:--:--:--')+'</b></button><button class="tcb" data-act="tcOut"><span class="lbl">TC OUT</span><b>'+(r.tcOut||'--:--:--:--')+'</b></button><button class="tcb" data-go="tcsync"><span class="lbl">'+(age==null?'<span style="color:var(--keep)">TC未同期</span>':age>4?'<span style="color:var(--keep)">要再同期</span>':'尺')+'</span><b>'+(durOf({inF:r.inF,outF:r.outF,fps:c.fps})||'--:--')+'</b></button></div>';
+  h+='<div class="g3"><button class="tcb" data-act="tcIn"><span class="lbl">TC IN</span>'+(r.tcIn?'<b>'+r.tcIn+'</b>':'<b class="tclive" style="color:var(--mut)">'+fmtTC(tcFrames(k),c.fps)+'</b>')+'</button><button class="tcb" data-act="tcOut"><span class="lbl">TC OUT</span>'+(r.tcOut?'<b>'+r.tcOut+'</b>':'<b class="'+(r.tcIn?'tclive':'')+'" style="color:var(--mut)">'+(r.tcIn?fmtTC(tcFrames(k),c.fps):'--:--:--:--')+'</b>')+'</button>';
+  var ss=syncState(k);
+  h+='<button class="tcb" data-go="tcsync"'+(ss==='ok'?'':' style="border-color:var(--keep)"')+'><span class="lbl">'+(ss==='ok'?'<span style="color:var(--ok)">● TC同期済</span>':ss==='none'?'<span style="color:var(--keep)">TC未同期</span>':ss==='fps'?'<span style="color:var(--keep)">fps変更・要同期</span>':'<span style="color:var(--keep)">前日の同期</span>')+'</span><b>'+(durOf({inF:r.inF,outF:r.outF,fps:c.fps})||'尺 --:--')+'</b></button></div>';
   h+='<div class="g3">'+[['lens','レンズ'],['iris','絞り'],['wb','WB']].map(function(x){return '<button class="tile'+(ch(x[0])?' ch':'')+'" data-pick="'+x[0]+'"><span class="lbl">'+x[1]+(ch(x[0])?'<span class="chg">変更</span>':'')+'</span><b>'+esc(shown(c,x[0]))+'</b>'+(x[0]==='lens'&&shown(c,'lensType')?'<span class="lbl" style="max-width:100%;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(shown(c,'lensType'))+'</span>':'')+'</button>';}).join('')+'</div>';
   h+='<button class="frow'+(ch('filter')?' ch':'')+'" data-pick="filter"><span class="lbl" style="min-width:52px">フィルター</span><span class="v">'+esc(filterText(c))+'</span>'+(ch('filter')?'<span class="chg" style="font-size:11px">変更</span>':'')+'</button>';
   h+='<div class="sub1 mono"><span>'+esc(c.body)+'</span><span>ISO '+esc(c.iso)+'</span><span>'+esc(c.shutter)+'</span><span>'+esc(c.fps)+'fps</span></div>';
@@ -290,7 +294,9 @@ function vTcSync(){
   var h='<div class="top"><button class="pill" data-back="1">‹ 戻る</button><span class="h1">TC合わせ</span><button class="pill" data-go="guide">使い方</button></div>';
   h+='<div class="seg">'+['A','B'].map(function(x){return '<button class="'+(x===k?'on':'')+'" data-camsel="'+x+'"><b style="font-size:18px">'+x+' CAM</b><span class="lbl">'+esc(D.settings.cams[x].fps)+' fps</span></button>';}).join('')+'</div>';
   h+='<div class="card" style="text-align:center"><div class="lbl">アプリのTC（'+k+' CAM）</div><div class="mono" id="liveTC" style="font-size:38px;font-weight:700;margin-top:4px">'+fmtTC(tcFrames(k),c.fps)+'</div><div class="sec" style="margin-top:4px">'+(sy?'最終同期 '+esc(sy.at)+'（'+(age<1?Math.round(age*60)+'分前':age.toFixed(1)+'時間前')+'）':'<span style="color:var(--keep)">未同期：iPhoneの時計そのままです</span>')+'</div></div>';
-  if(age!=null&&age>4)h+='<div class="warn">前回の同期から4時間以上たっています。合わせ直してください。</div>';
+  var ss2=syncState(k);
+  if(ss2==='ok')h+='<div class="card" style="border:1px solid var(--ok);color:var(--ok);font-size:14px;font-weight:700">● 今日の同期が済んでいます。この後は合わせ直さなくてOKです（バッテリー交換などでカメラのTCが変わったときだけ合わせ直してください）</div>';
+  else if(ss2==='old')h+='<div class="warn">この同期は前の日（'+esc(sy.at)+'）のものです。今日の撮影の最初に一度合わせてください。</div>';
   h+='<div class="sec">① カメラのfpsに合わせる（23.976と24は別物です）</div><div class="chips">'+FPS.map(function(f){return '<button class="chip'+(c.fps===f?' sel':'')+'" data-tcfps="'+f+'">'+f+'</button>';}).join('')+'</div>';
   h+='<label style="display:flex;flex-direction:column;gap:6px"><span class="sec">② カメラの表示より<b style="color:var(--tx)">数秒先</b>のTCを入れる（時分秒の6桁だけでもOK）</span><input class="inp mono" id="camTC" inputmode="numeric" autocomplete="off" placeholder="例 20:14:30:00" value="'+esc(S.tcDraft||'')+'" style="font-size:24px;height:58px;text-align:center"></label>';
   h+='<div class="sec">③ カメラの表示がその値になった瞬間に押す</div><button class="primary" data-act="tcNow" style="height:72px;font-size:22px">今</button>';
@@ -326,7 +332,7 @@ function vGuide(){
   '<div class="card"><b>1. カメラ側の準備</b>TCを時刻で常に進むモード（フリーラン／タイムオブデイ）にしておく。録画中だけ進むモード（レックラン）では合いません。</div>'+
   '<div class="card"><b>2. アプリで合わせる</b>① 「TC合わせ」でfpsをカメラと同じにする<br>② カメラの表示より数秒先のTCを入れる（例：表示が20:14:25なら 20:14:30）。時分秒の6桁だけでもOK<br>③ カメラの表示がその値になった瞬間に「今」を押す<br>④ アプリのTCとカメラを見比べ、ずれていれば「±1秒」「±1f」で微調整<span class="note">押すタイミングの分、数フレームずれることがあります。毎テイクのカチンコと合わせて使えば、記録とクリップの照合には十分です。</span></div>'+
   '<div class="card"><b>3. もっと正確にしたいとき</b>Tentacle Sync や Deity TC-1 などのTCジェネレーターで、全カメラと録音機を同じTCに揃える（ジャムシンク）。そのジェネレーターの表示に対して、2の手順で合わせます。</div>'+
-  '<div class="warn" style="line-height:1.7"><b style="color:var(--keep);font-size:15px">合わせ直すタイミング</b><br>・撮影の始まり（毎朝）<br>・バッテリー交換や電源を入れ直したあと（カメラによってはTCがリセットされることがある）<br>・長時間たったとき（数時間で数フレームずつずれていく）</div>'+
+  '<div class="warn" style="line-height:1.7"><b style="color:var(--keep);font-size:15px">合わせるのは基本1日1回</b><br>・撮影日の最初に一度合わせれば、その日はずっとそのまま使えます（記録画面に「● TC同期済」と出ます）<br>・バッテリー交換や電源の入れ直しで、カメラのTCが変わってしまったときだけ合わせ直す<br>・日付が変わると「前日の同期」と表示されるので、その日の最初にまた合わせる</div>'+
   '<div class="card"><b>fpsに注意</b>カメラが23.976fpsで回っている場合、そのTCは実際の時刻より1時間に約3.6秒遅れていきます。アプリのfpsをカメラと同じにしておけば、この遅れも計算に入ります。</div>'+
   '<div class="card"><b>2台で撮る日</b>A CAM・B CAMそれぞれで合わせます。ジェネレーターで揃えてあれば、同じ値で2回合わせるだけです。</div>'+
   '<div class="card"><b>記録の保存について</b>記録と台本はこのiPhoneの中だけに保存されます（サーバーには送られません）。一度開いたあとは、電波がなくても起動・記録できます。<br>iPhoneの故障や機種変更に備えて、撮影日の終わりにバックアップを取ってください。</div>'+
@@ -399,6 +405,7 @@ function render(){
   h={home:vHome,record:vRecord,day:vDay,edit:vEdit,camera:vCamera,tcsync:vTcSync,guide:vGuide,script:vScript}[v]();
   app.innerHTML=h;
   clearInterval(liveTimer);
+  if(v==='record'){liveTimer=setInterval(function(){var els=app.querySelectorAll('.tclive');if(!els.length)return;var k=D.settings.activeCam,t=fmtTC(tcFrames(k),cam(k).fps);els.forEach(function(e){e.textContent=t;});},100);}
   if(v==='tcsync'){liveTimer=setInterval(function(){var el=document.getElementById('liveTC');var k=S.camSel||D.settings.activeCam;if(el)el.textContent=fmtTC(tcFrames(k),cam(k).fps);},40);}
   if(v==='edit')wireHold();
   if(v==='home')wireDayHold();
