@@ -115,6 +115,7 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){retur
 function pad(n){return String(n).padStart(2,'0');}
 function today(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
 function fmtDate(s){if(!s)return'';var p=s.split('-');var d=new Date(+p[0],+p[1]-1,+p[2]);return pad(d.getMonth()+1)+'/'+pad(d.getDate())+'('+WK[d.getDay()]+')';}
+function clock(ms){var d=new Date(ms);return pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());}
 function nowStamp(){var d=new Date();return pad(d.getMonth()+1)+'/'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());}
 function clone(o){return JSON.parse(JSON.stringify(o));}
 
@@ -227,13 +228,12 @@ function vRecord(){
   var scn=findScene(s.cur.scene);
   if(scn)h+='<button class="script" data-scn="'+scn.no+'"><span style="display:flex;justify-content:space-between;align-items:baseline;width:100%"><span class="hd">'+esc(scn.no+'　'+scn.head)+'</span><span class="lbl">台本 p.'+scn.page+'</span></span><span class="ln">'+esc(firstLine(scn))+'</span></button>';
   else h+='<button class="script" data-go="script"><span class="ln">'+(script()?'台本にシーン'+esc(s.cur.scene)+'がありません':'台本が未読み込みです（タップで読み込み）')+'</span></button>';
-  h+='<div class="g3"><button class="tcb" data-act="tcIn"><span class="lbl">TC IN</span>'+(r.tcIn?'<b>'+r.tcIn+'</b>':'<b class="tclive" style="color:var(--mut)">'+fmtTC(tcFrames(k),c.fps)+'</b>')+'</button><button class="tcb" data-act="tcOut"><span class="lbl">TC OUT</span>'+(r.tcOut?'<b>'+r.tcOut+'</b>':'<b class="'+(r.tcIn?'tclive':'')+'" style="color:var(--mut)">'+(r.tcIn?fmtTC(tcFrames(k),c.fps):'--:--:--:--')+'</b>')+'</button>';
-  var ss=syncState(k);
-  h+='<button class="tcb" data-go="tcsync"'+(ss==='ok'?'':' style="border-color:var(--keep)"')+'><span class="lbl">'+(ss==='ok'?'<span style="color:var(--ok)">● TC同期済</span>':ss==='none'?'<span style="color:var(--keep)">TC未同期</span>':ss==='fps'?'<span style="color:var(--keep)">fps変更・要同期</span>':'<span style="color:var(--keep)">前日の同期</span>')+'</span><b>'+(durOf({inF:r.inF,outF:r.outF,fps:c.fps})||'尺 --:--')+'</b></button></div>';
+
   h+='<div class="g3">'+[['lens','レンズ'],['iris','絞り'],['wb','WB']].map(function(x){return '<button class="tile'+(ch(x[0])?' ch':'')+'" data-pick="'+x[0]+'"><span class="lbl">'+x[1]+(ch(x[0])?'<span class="chg">変更</span>':'')+'</span><b>'+esc(shown(c,x[0]))+'</b>'+(x[0]==='lens'&&shown(c,'lensType')?'<span class="lbl" style="max-width:100%;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(shown(c,'lensType'))+'</span>':'')+'</button>';}).join('')+'</div>';
   h+='<button class="frow'+(ch('filter')?' ch':'')+'" data-pick="filter"><span class="lbl" style="min-width:52px">フィルター</span><span class="v">'+esc(filterText(c))+'</span>'+(ch('filter')?'<span class="chg" style="font-size:11px">変更</span>':'')+'</button>';
   h+='<div class="sub1 mono"><span>'+esc(c.body)+'</span><span>ISO '+esc(c.iso)+'</span><span>'+esc(c.shutter)+'</span><span>'+esc(c.fps)+'fps</span></div>';
   h+='<div class="g3"><button class="st ok'+(r.status==='OK'?' on':'')+'" data-st="OK">OK</button><button class="st keep'+(r.status==='KEEP'?' on':'')+'" data-st="KEEP">保留</button><button class="st ng'+(r.status==='NG'?' on':'')+'" data-st="NG">NG</button></div>';
+  if(r.markedAt)h+='<div class="sec" style="text-align:center">'+({OK:'OK',KEEP:'保留',NG:'NG'}[r.status])+' を押した時刻 <b class="mono" style="color:var(--tx);font-size:15px">'+clock(r.markedAt)+'</b></div>';
   if(r.status==='NG')h+='<div class="chips">'+REASONS.map(function(x){return '<button class="chip'+(r.reasons[x]?' on':'')+'" data-reason="'+x+'">'+x+'</button>';}).join('')+'</div>';
   h+='<input class="inp" data-bind="rec.memo" value="'+esc(r.memo)+'" placeholder="メモ（芝居・繋がり）" aria-label="メモ">';
   h+='<div class="spacer"></div><button class="primary" data-act="commit"'+(r.status?'':' disabled')+'>'+(r.status==='OK'?'記録して C'+nextCut(s.cur.cut)+'-T1 へ':r.status?'記録して T'+(s.cur.take+1)+' へ':'OK／保留／NG を選んでください')+'</button>';
@@ -255,7 +255,7 @@ function vDay(){
     if(g!==last){h+='<div class="grp">'+esc(g)+'</div>';last=g;}
     var col={OK:'var(--ok)',KEEP:'var(--keep)',NG:'var(--ng)'}[t.status];
     var note=[(t.reasons||[]).join('・'),t.memo].filter(Boolean).join(' ／ ');
-    h+='<button class="row" data-edit="'+t.id+'"><span class="bar" style="background:'+col+'"></span><span class="code">'+esc(t.cut)+'-'+t.take+'</span><span class="badge b-'+t.status+'" style="min-width:40px;text-align:center">'+({OK:'OK',KEEP:'保留',NG:'NG'}[t.status])+'</span><span class="note">'+esc(note||((t.lensType?t.lensType+' ':'')+t.lens+' '+t.iris+' '+(t.nd&&t.nd!=='なし'?'ND '+t.nd:'NDなし')))+(t.history&&t.history.length?' <span style="color:var(--keep)">修正済</span>':'')+'</span><span class="mono sec">'+durOf(t)+'</span></button>';
+    h+='<button class="row" data-edit="'+t.id+'"><span class="bar" style="background:'+col+'"></span><span class="code">'+esc(t.cut)+'-'+t.take+'</span><span class="badge b-'+t.status+'" style="min-width:40px;text-align:center">'+({OK:'OK',KEEP:'保留',NG:'NG'}[t.status])+'</span><span class="note">'+esc(note||((t.lensType?t.lensType+' ':'')+t.lens+' '+t.iris+' '+(t.nd&&t.nd!=='なし'?'ND '+t.nd:'NDなし')))+(t.history&&t.history.length?' <span style="color:var(--keep)">修正済</span>':'')+'</span><span class="mono sec">'+esc(t.time||durOf(t))+'</span></button>';
   });
   return h;
 }
@@ -267,7 +267,7 @@ function vEdit(){
   h+='<div class="g3">'+f('scene','シーン')+f('cut','カット')+f('take','テイク')+'</div>';
   h+='<div class="g3"><button class="st ok'+(d.status==='OK'?' on':'')+'" data-dst="OK" style="height:56px">OK</button><button class="st keep'+(d.status==='KEEP'?' on':'')+'" data-dst="KEEP" style="height:56px">保留</button><button class="st ng'+(d.status==='NG'?' on':'')+'" data-dst="NG" style="height:56px">NG</button></div>';
   if(d.status==='NG')h+='<div class="chips">'+REASONS.map(function(x){return '<button class="chip'+(d.reasons.indexOf(x)>=0?' on':'')+'" data-dreason="'+x+'">'+x+'</button>';}).join('')+'</div>';
-  h+='<div class="g2">'+f('tcIn','TC IN',1)+f('tcOut','TC OUT',1)+'</div>';
+  h+=f('time','判定時刻',1);
   h+='<div class="g2">'+f('lensType','レンズ種類')+f('lens','焦点距離',1)+'</div>';
   h+='<div class="g2">'+f('iris','絞り',1)+f('wb','WB',1)+'</div>';
   h+='<div style="display:grid;grid-template-columns:1fr 2fr;gap:8px">'+f('nd','ND',1)+f('fx','エフェクト')+'</div>';
@@ -284,7 +284,6 @@ function vCamera(){
   h+='<div class="sec">よく変える（記録画面からも変更可）</div><div class="g3">'+[['lens','レンズ'],['iris','絞り'],['wb','WB']].map(function(x){return '<button class="tile" data-pick="'+x[0]+'" style="height:72px"><span class="lbl">'+x[1]+'</span><b>'+esc(shown(c,x[0]))+'</b>'+(x[0]==='lens'&&shown(c,'lensType')?'<span class="lbl">'+esc(shown(c,'lensType'))+'</span>':'')+'</button>';}).join('')+'</div>';
   h+='<div class="sec">フィルター</div><div class="list"><button class="li" data-pick="filter"><span class="k">ND</span><span class="v mono">'+esc(ndLabel(c.nd))+'</span></button><button class="li" data-pick="filter"><span class="k">エフェクト</span><span class="v">'+esc((c.fx||'').trim()||'なし')+'</span></button></div>';
   h+='<div class="sec">基本設定</div><div class="list">'+[['body','ボディ'],['iso','ISO'],['shutter','シャッター'],['fps','fps'],['format','収録形式']].map(function(x){return '<button class="li" data-field="'+x[0]+'"><span class="k">'+x[1]+'</span><span class="v mono">'+esc(c[x[0]])+(x[0]==='fps'?' fps':'')+'</span></button>';}).join('')+'</div>';
-  h+='<div class="list"><button class="li" data-go="tcsync"><span class="v">TC合わせ</span><span class="k">'+(D.settings.tc[k]?'最終 '+esc(D.settings.tc[k].at):'未同期')+' ›</span></button></div>';
   h+='<div class="spacer"></div><button class="primary" data-act="useCam">'+k+' CAM で記録する</button>';
   return h;
 }
@@ -327,16 +326,14 @@ function loadScriptObj(o){
   o.updatedAt=Date.now();D.scripts[D.settings.projectId]=o;persist(['script:'+D.settings.projectId]);render();toast('台本を読み込みました（'+o.scenes.length+'シーン）');
 }
 function vGuide(){
-  return '<div class="top"><button class="pill" data-back="1">‹ 戻る</button><span class="h1">TCの合わせ方</span><span style="width:60px"></span></div><div class="guide" style="display:flex;flex-direction:column;gap:12px">'+
-  '<p class="note" style="font-size:14px;color:var(--sub)">このアプリのTCは「iPhoneの時計＋カメラとのずれ」で出しています。一度合わせれば、ネットがなくても記録できます。</p>'+
-  '<div class="card"><b>1. カメラ側の準備</b>TCを時刻で常に進むモード（フリーラン／タイムオブデイ）にしておく。録画中だけ進むモード（レックラン）では合いません。</div>'+
-  '<div class="card"><b>2. アプリで合わせる</b>① 「TC合わせ」でfpsをカメラと同じにする<br>② カメラの表示より数秒先のTCを入れる（例：表示が20:14:25なら 20:14:30）。時分秒の6桁だけでもOK<br>③ カメラの表示がその値になった瞬間に「今」を押す<br>④ アプリのTCとカメラを見比べ、ずれていれば「±1秒」「±1f」で微調整<span class="note">押すタイミングの分、数フレームずれることがあります。毎テイクのカチンコと合わせて使えば、記録とクリップの照合には十分です。</span></div>'+
-  '<div class="card"><b>3. もっと正確にしたいとき</b>Tentacle Sync や Deity TC-1 などのTCジェネレーターで、全カメラと録音機を同じTCに揃える（ジャムシンク）。そのジェネレーターの表示に対して、2の手順で合わせます。</div>'+
-  '<div class="warn" style="line-height:1.7"><b style="color:var(--keep);font-size:15px">合わせるのは基本1日1回</b><br>・撮影日の最初に一度合わせれば、その日はずっとそのまま使えます（記録画面に「● TC同期済」と出ます）<br>・バッテリー交換や電源の入れ直しで、カメラのTCが変わってしまったときだけ合わせ直す<br>・日付が変わると「前日の同期」と表示されるので、その日の最初にまた合わせる</div>'+
-  '<div class="card"><b>fpsに注意</b>カメラが23.976fpsで回っている場合、そのTCは実際の時刻より1時間に約3.6秒遅れていきます。アプリのfpsをカメラと同じにしておけば、この遅れも計算に入ります。</div>'+
-  '<div class="card"><b>2台で撮る日</b>A CAM・B CAMそれぞれで合わせます。ジェネレーターで揃えてあれば、同じ値で2回合わせるだけです。</div>'+
+  return '<div class="top"><button class="pill" data-back="1">‹ 戻る</button><span class="h1">使い方</span><span style="width:60px"></span></div><div class="guide" style="display:flex;flex-direction:column;gap:12px">'+
+  '<div class="card"><b>1. 撮影を始める</b>ホームの「新しい撮影を始める」で、撮影日・使うカメラ・最初のシーン／カット／テイクを決めます。</div>'+
+  '<div class="card"><b>2. テイクを記録する</b>OK／保留／NGを押すと、その時刻が記録されます。NGのときは理由を選び、「記録して次へ」で確定します。<br>・OK → カットが1つ進み、テイクは1に戻る<br>・保留／NG → テイクが1つ進む<br>・シーンを変えると、カットとテイクが1に戻る</div>'+
+  '<div class="card"><b>3. レンズ・絞り・WB・フィルター</b>記録画面のタイルから変更できます。前のテイクから変えた項目には黄色の「変更」が付きます。</div>'+
+  '<div class="card"><b>4. 一覧・修正・削除</b>撮影日のカードを開くとその日の一覧。テイクをタップで修正（保存・削除は長押し）。撮影日ごと消すときは、ホームでカードを長押し。</div>'+
+  '<div class="card"><b>5. 書き出し</b>一覧の「書き出し」でCSVを保存・共有できます。</div>'+
   '<div class="card"><b>記録の保存について</b>記録と台本はこのiPhoneの中だけに保存されます（サーバーには送られません）。一度開いたあとは、電波がなくても起動・記録できます。<br>iPhoneの故障や機種変更に備えて、撮影日の終わりにバックアップを取ってください。</div>'+
-  '<div class="card"><b>データのバックアップ</b><span>全プロジェクトの記録・カメラ設定・台本をまとめて1つのファイルにします。別のiPhoneで「読み込む」と同じ状態に戻せます（読み込むと今のデータは置き換わります）。</span><div class="g2" style="margin-top:6px"><button class="opt" data-act="backup">書き出す</button><label class="opt" style="display:flex;align-items:center;justify-content:center">読み込む<input type="file" accept=".json,application/json" id="restoreFile" style="display:none"></label></div></div></div>';
+  '<div class="card"><b>データのバックアップ</b><span>全プロジェクトの記録・カメラ設定・台本をまとめて1つのファイルにします。別のiPhoneで「読み込む」と同じ状態に戻せます（読み込むと今のデータは置き換わります）。</span><div class="g2" style="margin-top:6px"><button class="opt" data-act="backup">書き出す</button><label class="opt" style="display:flex;align-items:center;justify-content:center">読み込む<input type="file" accept=".json,application/json" id="restoreFile" style="display:none"></label></div></div>'+'</div>';
 }
 
 /* ---------- sheets ---------- */
@@ -420,24 +417,24 @@ function commit(){
   var key=dayKey(ses.date),day=D.days[key];
   if(!day)day=D.days[key]={projectId:s.projectId,date:ses.date,takes:[],updatedAt:0};
   var snap=camSnap(k),now=Date.now();
-  var t={id:uid('t'),date:ses.date,scene:String(s.cur.scene),cut:String(s.cur.cut),take:s.cur.take,status:r.status,reasons:REASONS.filter(function(x){return r.reasons[x];}),memo:r.memo.trim(),tcIn:r.tcIn,tcOut:r.tcOut,inF:r.inF,outF:r.outF,createdAt:now,createdLabel:nowStamp(),updatedAt:now,history:[]};
+  var t={id:uid('t'),date:ses.date,scene:String(s.cur.scene),cut:String(s.cur.cut),take:s.cur.take,status:r.status,reasons:REASONS.filter(function(x){return r.reasons[x];}),memo:r.memo.trim(),time:clock(r.markedAt||now),markedAt:r.markedAt||now,createdAt:now,createdLabel:nowStamp(),updatedAt:now,history:[]};
   for(var x in snap)t[x]=snap[x];
   if(t.status!=='NG')t.reasons=[];
   day.takes.push(t);day.updatedAt=now;
   s.lastCam[k]=clone(cam(k));
   if(t.status==='OK'){s.cur.cut=nextCut(s.cur.cut);s.cur.take=1;}else s.cur.take+=1;
   s.updatedAt=now;
-  S.rec={status:null,reasons:{},memo:'',tcIn:'',tcOut:'',inF:null,outF:null};
+  S.rec={status:null,reasons:{},memo:'',markedAt:null};
   persist([key,'settings']);render();toast('S'+t.scene+'-C'+t.cut+'-T'+t.take+' を記録しました');
 }
 function openEdit(id){
   var day=D.days[S.dayKey];if(!day)return;var t=day.takes.filter(function(x){return x.id===id;})[0];if(!t)return;
-  S.editId=id;S.draft=clone(t);if(S.draft.lensType==null)S.draft.lensType='';S.draft.take=String(t.take);go('edit');
+  S.editId=id;S.draft=clone(t);if(S.draft.time==null)S.draft.time='';if(S.draft.lensType==null)S.draft.lensType='';S.draft.take=String(t.take);go('edit');
 }
 function saveEdit(){
   var day=D.days[S.dayKey];if(!day)return;var i=-1;day.takes.forEach(function(x,j){if(x.id===S.editId)i=j;});if(i<0)return;
   var old=day.takes[i],d=S.draft,b=clone(old);delete b.history;
-  var n=clone(old);['scene','cut','status','memo','tcIn','tcOut','lensType','lens','iris','wb','nd','fx'].forEach(function(k){n[k]=typeof d[k]==='string'?d[k].trim():d[k];});
+  var n=clone(old);['scene','cut','status','memo','time','lensType','lens','iris','wb','nd','fx'].forEach(function(k){n[k]=typeof d[k]==='string'?d[k].trim():d[k];});
   n.take=parseInt(d.take,10)||old.take;n.reasons=d.status==='NG'?d.reasons.slice():[];
   var f=old.fps||'24',a=parseTC(n.tcIn,f),o=parseTC(n.tcOut,f);n.inF=a;n.outF=o;
   var changed=JSON.stringify(b)!==JSON.stringify((function(){var c=clone(n);delete c.history;return c;})());
@@ -499,8 +496,8 @@ function shareFile(name,text,type){
   function dl(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:type}));a.download=safe;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1000);toast('保存しました');}
 }
 function csvOf(day){
-  var head=['撮影日','シーン','カット','テイク','判定','NG理由','TC IN','TC OUT','尺','カメラ','ボディ','レンズ種類','レンズ','絞り','WB','ND','エフェクト','ISO','シャッター','fps','メモ','修正'];
-  var rows=day.takes.slice().sort(function(a,b){return a.createdAt-b.createdAt;}).map(function(t){return [t.date,t.scene,t.cut,t.take,{OK:'OK',KEEP:'保留',NG:'NG'}[t.status],(t.reasons||[]).join('・'),t.tcIn,t.tcOut,durOf(t),t.cam,t.body,t.lensType||'',t.lens,t.iris,t.wb,t.nd,t.fx,t.iso,t.shutter,t.fps,t.memo,(t.history||[]).length];});
+  var head=['撮影日','シーン','カット','テイク','判定','NG理由','判定時刻','カメラ','ボディ','レンズ種類','レンズ','絞り','WB','ND','エフェクト','ISO','シャッター','fps','メモ','修正'];
+  var rows=day.takes.slice().sort(function(a,b){return a.createdAt-b.createdAt;}).map(function(t){return [t.date,t.scene,t.cut,t.take,{OK:'OK',KEEP:'保留',NG:'NG'}[t.status],(t.reasons||[]).join('・'),t.time||'',t.cam,t.body,t.lensType||'',t.lens,t.iris,t.wb,t.nd,t.fx,t.iso,t.shutter,t.fps,t.memo,(t.history||[]).length];});
   return [head].concat(rows).map(function(r){return r.map(function(v){v=String(v==null?'':v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}).join(',');}).join('\n');
 }
 function setDeep(path,val){var p=path.split('.');if(p[0]==='rec')S.rec[p[1]]=val;else if(p[0]==='draft'&&S.draft)S.draft[p[1]]=val;}
@@ -517,7 +514,7 @@ document.addEventListener('click',function(e){
   if(d.back){if(d.back==='day'){S.draft=null;}back();return;}
   if(d.day){if(Date.now()-dayBlock<800)return;S.dayKey=d.day;S.scene='all';go('day');return;}
   if(d.edit){openEdit(d.edit);return;}
-  if(d.st){S.rec.status=S.rec.status===d.st?null:d.st;render();return;}
+  if(d.st){if(S.rec.status===d.st){S.rec.status=null;S.rec.markedAt=null;}else{S.rec.status=d.st;S.rec.markedAt=Date.now();}render();return;}
   if(d.reason){S.rec.reasons[d.reason]=!S.rec.reasons[d.reason];render();return;}
   if(d.dst){S.draft.status=d.dst;render();return;}
   if(d.dreason){var a=S.draft.reasons,i=a.indexOf(d.dreason);if(i>=0)a.splice(i,1);else a.push(d.dreason);render();return;}
