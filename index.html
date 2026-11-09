@@ -213,7 +213,7 @@ function vHome(){
   days.forEach(function(d){
     var c={OK:0,KEEP:0,NG:0},sc=[],cams={};
     d.takes.forEach(function(t){c[t.status]=(c[t.status]||0)+1;if(sc.indexOf(t.scene)<0)sc.push(t.scene);cams[t.cam]=1;});
-    h+='<button class="card hold" data-day="'+esc(dayKey(d.date))+'" style="display:flex;flex-direction:column;gap:8px"><span style="display:flex;justify-content:space-between;align-items:baseline;width:100%"><b style="font-size:18px">'+fmtDate(d.date)+'</b><span class="sec">'+d.takes.length+' テイク</span></span><span style="font-size:13px;color:var(--sub)">'+esc(sc.map(function(s){return 'S'+s;}).join(' ・ '))+'</span><span style="display:flex;gap:6px;align-items:center;width:100%"><span class="badge b-OK">OK '+c.OK+'</span><span class="badge b-KEEP">保留 '+c.KEEP+'</span><span class="badge b-NG">NG '+c.NG+'</span><span class="mono sec" style="margin-left:auto">'+Object.keys(cams).sort().map(function(k){return k+' CAM';}).join(' ／ ')+'</span></span></button>';
+    h+='<button class="card hold" data-day="'+esc(dayKey(d.date))+'" style="display:flex;flex-direction:column;gap:8px"><span style="display:flex;justify-content:space-between;align-items:baseline;width:100%"><b style="font-size:18px">'+fmtDate(d.date)+'</b><span class="sec">'+d.takes.length+' テイク</span></span><span style="font-size:13px;color:var(--sub)">'+esc(sc.map(function(s){return 'S'+s;}).join(' ・ '))+'</span><span style="display:flex;gap:6px;align-items:center;width:100%"><span class="badge b-OK">OK '+c.OK+'</span><span class="badge b-KEEP">仮OK '+c.KEEP+'</span><span class="badge b-NG">NG '+c.NG+'</span><span class="mono sec" style="margin-left:auto">'+Object.keys(cams).sort().map(function(k){return k+' CAM';}).join(' ／ ')+'</span></span></button>';
   });
   h+='<div class="spacer"></div><button class="primary" data-act="newShoot" style="position:sticky;bottom:12px;height:64px;font-size:18px">＋ 新しい撮影を始める</button>';
   return h;
@@ -232,30 +232,32 @@ function vRecord(){
   h+='<div class="g3">'+[['lens','レンズ'],['iris','絞り'],['wb','WB']].map(function(x){return '<button class="tile'+(ch(x[0])?' ch':'')+'" data-pick="'+x[0]+'"><span class="lbl">'+x[1]+(ch(x[0])?'<span class="chg">変更</span>':'')+'</span><b>'+esc(shown(c,x[0]))+'</b>'+(x[0]==='lens'&&shown(c,'lensType')?'<span class="lbl" style="max-width:100%;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(shown(c,'lensType'))+'</span>':'')+'</button>';}).join('')+'</div>';
   h+='<button class="frow'+(ch('filter')?' ch':'')+'" data-pick="filter"><span class="lbl" style="min-width:52px">フィルター</span><span class="v">'+esc(filterText(c))+'</span>'+(ch('filter')?'<span class="chg" style="font-size:11px">変更</span>':'')+'</button>';
   h+='<div class="sub1 mono"><span>'+esc(c.body)+'</span><span>ISO '+esc(c.iso)+'</span><span>'+esc(c.shutter)+'</span><span>'+esc(c.fps)+'fps</span></div>';
-  h+='<div class="g3"><button class="st ok'+(r.status==='OK'?' on':'')+'" data-st="OK">OK</button><button class="st keep'+(r.status==='KEEP'?' on':'')+'" data-st="KEEP">保留</button><button class="st ng'+(r.status==='NG'?' on':'')+'" data-st="NG">NG</button></div>';
-  if(r.markedAt)h+='<div class="sec" style="text-align:center">'+({OK:'OK',KEEP:'保留',NG:'NG'}[r.status])+' を押した時刻 <b class="mono" style="color:var(--tx);font-size:15px">'+clock(r.markedAt)+'</b></div>';
+  h+='<div class="g3"><button class="st ok'+(r.status==='OK'?' on':'')+'" data-st="OK">OK</button><button class="st keep'+(r.status==='KEEP'?' on':'')+'" data-st="KEEP">仮OK</button><button class="st ng'+(r.status==='NG'?' on':'')+'" data-st="NG">NG</button></div>';
+  if(r.markedAt)h+='<div class="sec" style="text-align:center">'+({OK:'OK',KEEP:'仮OK',NG:'NG'}[r.status])+' を押した時刻 <b class="mono" style="color:var(--tx);font-size:15px">'+clock(r.markedAt)+'</b></div>';
   if(r.status==='NG')h+='<div class="chips">'+REASONS.map(function(x){return '<button class="chip'+(r.reasons[x]?' on':'')+'" data-reason="'+x+'">'+x+'</button>';}).join('')+'</div>';
   h+='<input class="inp" data-bind="rec.memo" value="'+esc(r.memo)+'" placeholder="メモ（芝居・繋がり）" aria-label="メモ">';
-  h+='<div class="spacer"></div><button class="primary" data-act="commit"'+(r.status?'':' disabled')+'>'+(r.status==='OK'?'記録して C'+nextCut(s.cur.cut)+'-T1 へ':r.status?'記録して T'+(s.cur.take+1)+' へ':'OK／保留／NG を選んでください')+'</button>';
+  h+='<div class="spacer"></div><button class="primary" data-act="commit"'+(r.status?'':' disabled')+'>'+(r.status==='OK'?'記録して C'+nextCut(s.cur.cut)+'-T1 へ':r.status?'記録して T'+(s.cur.take+1)+' へ':'OK／仮OK／NG を選んでください')+'</button>';
   return h;
 }
 
-function vDay(){
+function vDay(){return vDayInner()+recBar();}
+function recBar(){var ses=D.settings.session;if(!ses||ses.projectId!==D.settings.projectId)return '';var c=D.settings.cur;return '<div class="spacer"></div><button class="primary" data-go="record" style="position:sticky;bottom:12px;background:var(--keep)">撮影中 S'+esc(c.scene)+'-C'+esc(c.cut)+'-T'+c.take+'　記録に戻る ›</button>';}
+function vDayInner(){
   var day=D.days[S.dayKey];
   var h='<div class="top"><button class="pill" data-go="home">‹ ホーム</button><span class="h1">'+(day?fmtDate(day.date):'')+'</span><button class="pill" data-act="export">書き出し</button></div>';
-  if(!day||!day.takes.length){return h+'<div class="card note">この日の記録はまだありません。</div>'+(D.settings.session?'<button class="primary" data-go="record">記録画面へ</button>':'');}
+  if(!day||!day.takes.length){return h+'<div class="card note">この日の記録はまだありません。</div>';}
   var scenes=[];day.takes.forEach(function(t){if(scenes.indexOf(t.scene)<0)scenes.push(t.scene);});
   h+='<div class="chips"><button class="chip'+(S.scene==='all'?' sel':'')+'" data-scene="all">すべて</button>'+scenes.map(function(x){return '<button class="chip'+(S.scene===x?' sel':'')+'" data-scene="'+esc(x)+'">S'+esc(x)+'</button>';}).join('')+'</div>';
   var ts=day.takes.filter(function(t){return S.scene==='all'||t.scene===S.scene;}).slice().sort(function(a,b){return b.createdAt-a.createdAt;});
   var c={OK:0,KEEP:0,NG:0};ts.forEach(function(t){c[t.status]++;});
-  h+='<div class="sec" style="display:flex;gap:12px"><span><b style="color:var(--ok)">OK</b> '+c.OK+'</span><span><b style="color:var(--keep)">保留</b> '+c.KEEP+'</span><span><b style="color:var(--ng)">NG</b> '+c.NG+'</span><span style="margin-left:auto">タップで編集</span></div>';
+  h+='<div class="sec" style="display:flex;gap:12px"><span><b style="color:var(--ok)">OK</b> '+c.OK+'</span><span><b style="color:var(--keep)">仮OK</b> '+c.KEEP+'</span><span><b style="color:var(--ng)">NG</b> '+c.NG+'</span><span style="margin-left:auto">タップで編集</span></div>';
   var last='';
   ts.forEach(function(t){
     var g='S'+t.scene+'　C'+t.cut;
     if(g!==last){h+='<div class="grp">'+esc(g)+'</div>';last=g;}
     var col={OK:'var(--ok)',KEEP:'var(--keep)',NG:'var(--ng)'}[t.status];
     var note=[(t.reasons||[]).join('・'),t.memo].filter(Boolean).join(' ／ ');
-    h+='<button class="row" data-edit="'+t.id+'"><span class="bar" style="background:'+col+'"></span><span class="code">'+esc(t.cut)+'-'+t.take+'</span><span class="badge b-'+t.status+'" style="min-width:40px;text-align:center">'+({OK:'OK',KEEP:'保留',NG:'NG'}[t.status])+'</span><span class="note">'+esc(note||((t.lensType?t.lensType+' ':'')+t.lens+' '+t.iris+' '+(t.nd&&t.nd!=='なし'?'ND '+t.nd:'NDなし')))+(t.history&&t.history.length?' <span style="color:var(--keep)">修正済</span>':'')+'</span><span class="mono sec">'+esc(t.time||durOf(t))+'</span></button>';
+    h+='<button class="row" data-edit="'+t.id+'"><span class="bar" style="background:'+col+'"></span><span class="code">'+esc(t.cut)+'-'+t.take+'</span><span class="badge b-'+t.status+'" style="min-width:40px;text-align:center">'+({OK:'OK',KEEP:'仮OK',NG:'NG'}[t.status])+'</span><span class="note">'+esc(note||((t.lensType?t.lensType+' ':'')+t.lens+' '+t.iris+' '+(t.nd&&t.nd!=='なし'?'ND '+t.nd:'NDなし')))+(t.history&&t.history.length?' <span style="color:var(--keep)">修正済</span>':'')+'</span><span class="mono sec">'+esc(t.time||durOf(t))+'</span></button>';
   });
   return h;
 }
@@ -265,7 +267,7 @@ function vEdit(){
   function f(key,label,mono){return '<label style="display:flex;flex-direction:column;gap:4px"><span class="lbl">'+label+'</span><input class="inp'+(mono?' mono':'')+'" data-bind="draft.'+key+'" value="'+esc(d[key])+'"></label>';}
   var h='<div class="top"><button class="pill" data-back="day">‹ 一覧</button><span class="h1">テイク編集</span><span class="sec">撮影 '+fmtDate(d.date)+'</span></div>';
   h+='<div class="g3">'+f('scene','シーン')+f('cut','カット')+f('take','テイク')+'</div>';
-  h+='<div class="g3"><button class="st ok'+(d.status==='OK'?' on':'')+'" data-dst="OK" style="height:56px">OK</button><button class="st keep'+(d.status==='KEEP'?' on':'')+'" data-dst="KEEP" style="height:56px">保留</button><button class="st ng'+(d.status==='NG'?' on':'')+'" data-dst="NG" style="height:56px">NG</button></div>';
+  h+='<div class="g3"><button class="st ok'+(d.status==='OK'?' on':'')+'" data-dst="OK" style="height:56px">OK</button><button class="st keep'+(d.status==='KEEP'?' on':'')+'" data-dst="KEEP" style="height:56px">仮OK</button><button class="st ng'+(d.status==='NG'?' on':'')+'" data-dst="NG" style="height:56px">NG</button></div>';
   if(d.status==='NG')h+='<div class="chips">'+REASONS.map(function(x){return '<button class="chip'+(d.reasons.indexOf(x)>=0?' on':'')+'" data-dreason="'+x+'">'+x+'</button>';}).join('')+'</div>';
   h+=f('time','判定時刻',1);
   h+='<div class="g2">'+f('lensType','レンズ種類')+f('lens','焦点距離',1)+'</div>';
@@ -328,7 +330,7 @@ function loadScriptObj(o){
 function vGuide(){
   return '<div class="top"><button class="pill" data-back="1">‹ 戻る</button><span class="h1">使い方</span><span style="width:60px"></span></div><div class="guide" style="display:flex;flex-direction:column;gap:12px">'+
   '<div class="card"><b>1. 撮影を始める</b>ホームの「新しい撮影を始める」で、撮影日・使うカメラ・最初のシーン／カット／テイクを決めます。</div>'+
-  '<div class="card"><b>2. テイクを記録する</b>OK／保留／NGを押すと、その時刻が記録されます。NGのときは理由を選び、「記録して次へ」で確定します。<br>・OK → カットが1つ進み、テイクは1に戻る<br>・保留／NG → テイクが1つ進む<br>・シーンを変えると、カットとテイクが1に戻る</div>'+
+  '<div class="card"><b>2. テイクを記録する</b>OK／仮OK／NGを押すと、その時刻が記録されます。NGのときは理由を選び、「記録して次へ」で確定します。<br>・OK → カットが1つ進み、テイクは1に戻る<br>・仮OK／NG → テイクが1つ進む<br>・シーンを変えると、カットとテイクが1に戻る</div>'+
   '<div class="card"><b>3. レンズ・絞り・WB・フィルター</b>記録画面のタイルから変更できます。前のテイクから変えた項目には黄色の「変更」が付きます。</div>'+
   '<div class="card"><b>4. 一覧・修正・削除</b>撮影日のカードを開くとその日の一覧。テイクをタップで修正（保存・削除は長押し）。撮影日ごと消すときは、ホームでカードを長押し。</div>'+
   '<div class="card"><b>5. 書き出し</b>一覧の「書き出し」でCSVを保存・共有できます。</div>'+
@@ -475,7 +477,7 @@ function openDelDay(key){
   var c={OK:0,KEEP:0,NG:0};day.takes.forEach(function(t){c[t.status]++;});
   S.sheet={type:'delDay',key:key};
   layer.innerHTML='<div class="overlay" data-act="sheetBg"><div class="sheet"><span class="h1">この撮影日を削除しますか？</span>'+
-    '<div class="card" style="background:var(--card2)"><b style="font-size:20px">'+fmtDate(day.date)+'</b><div class="sec" style="margin-top:4px">'+day.takes.length+' テイク（OK '+c.OK+' ／ 保留 '+c.KEEP+' ／ NG '+c.NG+'）</div></div>'+
+    '<div class="card" style="background:var(--card2)"><b style="font-size:20px">'+fmtDate(day.date)+'</b><div class="sec" style="margin-top:4px">'+day.takes.length+' テイク（OK '+c.OK+' ／ 仮OK '+c.KEEP+' ／ NG '+c.NG+'）</div></div>'+
     '<div class="note">この日の記録がすべて消え、元に戻せません。必要なら先に一覧の「書き出し」で保存してください。</div>'+
     '<button class="hold" id="holdDelDay" style="height:64px;border:2px solid var(--ng);border-radius:16px;background:transparent;color:var(--ng);font-size:17px;font-weight:900">3秒長押しで削除</button>'+
     '<button class="opt" data-act="sheetClose">やめる</button></div></div>';
@@ -497,7 +499,7 @@ function shareFile(name,text,type){
 }
 function csvOf(day){
   var head=['撮影日','シーン','カット','テイク','判定','NG理由','判定時刻','カメラ','ボディ','レンズ種類','レンズ','絞り','WB','ND','エフェクト','ISO','シャッター','fps','メモ','修正'];
-  var rows=day.takes.slice().sort(function(a,b){return a.createdAt-b.createdAt;}).map(function(t){return [t.date,t.scene,t.cut,t.take,{OK:'OK',KEEP:'保留',NG:'NG'}[t.status],(t.reasons||[]).join('・'),t.time||'',t.cam,t.body,t.lensType||'',t.lens,t.iris,t.wb,t.nd,t.fx,t.iso,t.shutter,t.fps,t.memo,(t.history||[]).length];});
+  var rows=day.takes.slice().sort(function(a,b){return a.createdAt-b.createdAt;}).map(function(t){return [t.date,t.scene,t.cut,t.take,{OK:'OK',KEEP:'仮OK',NG:'NG'}[t.status],(t.reasons||[]).join('・'),t.time||'',t.cam,t.body,t.lensType||'',t.lens,t.iris,t.wb,t.nd,t.fx,t.iso,t.shutter,t.fps,t.memo,(t.history||[]).length];});
   return [head].concat(rows).map(function(r){return r.map(function(v){v=String(v==null?'':v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}).join(',');}).join('\n');
 }
 function setDeep(path,val){var p=path.split('.');if(p[0]==='rec')S.rec[p[1]]=val;else if(p[0]==='draft'&&S.draft)S.draft[p[1]]=val;}
