@@ -37,13 +37,13 @@ button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .tcb b{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:14px}
 .tile{height:62px;border-radius:14px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
 .tile b{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:19px}
-.tile.ch,.frow.ch{border:2px solid var(--keep)}
+
 .chg{color:var(--keep);font-weight:700;margin-left:4px}
 .frow{height:48px;border-radius:14px;background:var(--card);border:1px solid var(--line);display:flex;align-items:center;gap:10px;padding:0 14px;width:100%}
 .frow span.v{flex:1;text-align:left;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sub1{font-size:11px;color:var(--mut);display:flex;gap:10px;flex-wrap:wrap;padding:0 4px}
 .st{height:64px;border-radius:18px;font-size:22px;font-weight:900;background:transparent;border:2px solid}
-.st.ok{color:var(--ok);border-color:var(--ok)}.st.keep{color:var(--keep);border-color:var(--keep)}.st.ng{color:var(--ng);border-color:var(--ng)}
+.st.ok{color:#5AC8FA;border-color:#5AC8FA}.st.keep{color:var(--keep);border-color:var(--keep)}.st.ng{color:var(--ng);border-color:var(--ng)}
 .st.on{color:#000}.st.ok.on{background:var(--ok)}.st.keep.on{background:var(--keep)}.st.ng.on{background:var(--ng)}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{height:38px;padding:0 13px;border-radius:19px;font-size:14px;border:1px solid var(--line2);background:var(--card)}
@@ -69,6 +69,20 @@ button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .sheet{position:relative;width:100%;max-width:456px;align-self:flex-start;background:#17191C;border:1px solid var(--line);border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:14px;box-shadow:0 12px 40px rgba(0,0,0,.6);max-height:calc(100dvh - 140px);overflow-y:auto}
 .opt{height:48px;border-radius:12px;font-size:15px;border:1px solid var(--line2);background:var(--card2)}
 .opt.sel{border:0;background:var(--tx);color:#000;font-weight:700}
+.camrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.camchip{height:44px;min-width:58px;padding:0 12px;border-radius:12px;border:1.5px solid var(--line2);background:transparent;color:var(--mut);font-weight:900;font-size:18px}
+.camchip.on.cA{background:#FF5A4E;color:#000;border-color:#FF5A4E}.camchip.on.cB{background:#F2B134;color:#000;border-color:#F2B134}.camchip.on.cC{background:#2FD38A;color:#000;border-color:#2FD38A}
+.ctag{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;border-radius:5px;font-size:11px;font-weight:900;color:#000;margin-right:4px}
+.mbtn{height:44px;padding:0 10px;border-radius:12px;border:1px solid var(--line);background:var(--card);flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:1px;text-align:left}
+.mbtn b{font-size:13px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wheelbox{position:relative}
+.wheel{height:220px;overflow-y:scroll;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior:contain}
+.wheel::-webkit-scrollbar{display:none}
+.wi{height:44px;display:flex;align-items:center;justify-content:center;scroll-snap-align:center;font-size:20px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 8px}
+.wi.on{color:var(--tx);font-weight:900;font-size:24px}
+.wi small{font-size:12px;font-weight:400;margin-left:8px;color:var(--mut);overflow:hidden;text-overflow:ellipsis}
+.wpad{height:88px}
+.wband{position:absolute;left:0;right:0;top:88px;height:44px;border-top:1px solid var(--line2);border-bottom:1px solid var(--line2);background:rgba(255,255,255,.05);border-radius:10px;pointer-events:none}
 .hold{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
 .warn{padding:12px 14px;border-radius:14px;background:#2A2418;border:1px solid #5A4A22;color:#E6DCC6;font-size:13px}
 .note{font-size:12px;color:var(--mut);line-height:1.6}
@@ -77,7 +91,7 @@ button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .guide .card b{color:var(--tx);font-size:15px}
 .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:var(--tx);color:#000;padding:10px 16px;border-radius:12px;font-size:14px;font-weight:700;z-index:20}
 .logo{width:150px;height:auto;display:block}
-.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .seg button{height:56px;border-radius:14px;border:1px solid var(--line);background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .seg button.on{border:2px solid var(--keep);background:var(--card)}
 .script{border:0;text-align:left;padding:10px 14px;border-radius:14px;background:var(--card);display:flex;flex-direction:column;gap:2px;width:100%}
@@ -102,6 +116,10 @@ button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 var KEY='9029script.v1';
 var LENS=['18mm','21mm','24mm','25mm','28mm','35mm','40mm','50mm','75mm','85mm','100mm','135mm','その他'];
 var LTYPE=['ZEISS','Simera-C','その他'];
+var IRISW=['F1.4','F1.7','F1.8','F2','F2.2','F2.5','F2.8','F3.2','F3.5','F4','F4.5','F5','F5.6','F6.3','F7.1','F8','F9','F10','F11','F13','F16','F22'];
+var CAMS=['A','B','C'];
+var CAMCOL={A:'#FF5A4E',B:'#F2B134',C:'#2FD38A'};
+var SFX=['','A','B','C','D','E','F','G','H'];
 var IRIS=['F1.4','F2','F2.8','F4','F5.6','F8','その他'];
 var WB=['3200K','4300K','5000K','5600K','6500K','その他'];
 var ND=[['なし','なし'],['0.3','0.3 (ND2)'],['0.6','0.6 (ND4)'],['0.9','0.9 (ND8)'],['1.2','1.2 (ND16)'],['1.5','1.5 (ND32)'],['1.8','1.8 (ND64)'],['2.1','2.1 (ND128)'],['2.4','2.4 (ND256)']];
@@ -119,15 +137,17 @@ function clock(ms){var d=new Date(ms);return pad(d.getHours())+':'+pad(d.getMinu
 function nowStamp(){var d=new Date();return pad(d.getMonth()+1)+'/'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());}
 function clone(o){return JSON.parse(JSON.stringify(o));}
 
-function defCam(body){return {body:body,lensType:'',lensTypeCustom:'',lens:'35mm',lensCustom:'',iris:'F2.8',irisCustom:'',wb:'5600K',wbCustom:'',nd:'なし',fx:'',iso:'800',shutter:'180°',fps:'24',format:'BRAW'};}
+function defCam(body){return {body:body,media:'',tstop:'T2.8',tLink:true,lensType:'',lensTypeCustom:'',lens:'35mm',lensCustom:'',iris:'F2.8',irisCustom:'',wb:'5600K',wbCustom:'',nd:'なし',fx:'',iso:'800',shutter:'180°',fps:'24',format:'BRAW'};}
 function defaults(){
   var p={id:'p'+uid(),name:'One'};
-  return {settings:{projects:[p],projectId:p.id,cams:{A:defCam('URSA Cine 12K LF'),B:defCam('PYXIS 6K')},lastCam:{},activeCam:'A',tc:{},session:null,cur:{scene:'1',cut:'1',take:1},updatedAt:0},days:{}};
+  return {settings:{projects:[p],projectId:p.id,cams:{A:defCam('URSA Cine 12K LF'),B:defCam('PYXIS 6K'),C:defCam('')},lastCam:{},activeCam:'A',tc:{},session:null,cur:{scene:'1',cut:'1',take:1},updatedAt:0},days:{}};
 }
 var D;
 try{D=JSON.parse(localStorage.getItem(KEY)||'null');}catch(e){D=null;}
 if(!D||!D.settings)D=defaults();
 if(!D.scripts)D.scripts={};
+if(!D.settings.cams.C)D.settings.cams.C=defCam('');
+CAMS.forEach(function(k){var c=D.settings.cams[k];if(c&&c.tstop==null){c.tstop=/^F/.test(c.iris)?'T'+c.iris.slice(1):'T2.8';c.tLink=true;}if(c&&c.media==null)c.media='';});
 
 var S={view:'home',dayKey:null,scene:'all',editId:null,draft:null,camSel:null,rec:{status:null,reasons:{},memo:'',tcIn:'',tcOut:'',inF:null,outF:null},sheet:null,syncNote:''};
 
@@ -169,9 +189,21 @@ function firstLine(sc){for(var i=0;i<sc.body.length;i++)if(sc.body[i]!=='×')ret
 function sceneStatus(no){var r={takes:0,ok:0};projDays().forEach(function(d){d.takes.forEach(function(t){if(sceneNum(t.scene)===no){r.takes++;if(t.status==='OK')r.ok++;}});});return r;}
 function bodyHtml(sc){return sc.body.map(function(p){if(p==='×')return '<div class="x">×　×　×</div>';var m=p.match(/^([^「」（）]{1,8})「([\s\S]*)$/);if(m)return '<div class="dl"><b>'+esc(m[1])+'</b>「'+esc(m[2])+'</div>';return '<div>'+esc(p)+'</div>';}).join('');}
 function nextCut(c){var m=String(c).match(/^(\d+)/);return m?String(parseInt(m[1],10)+1):String(c);}
+function lit(){var r=D.settings.rolling;if(!r){r=D.settings.rolling={};((D.settings.session&&D.settings.session.cams)||['A']).forEach(function(k){r[k]=true;});}return CAMS.filter(function(k){return r[k];});}
+function wheelHtml(id,items,label){return '<div class="wheelbox">'+(label?'<div class="sec" style="text-align:center;margin-bottom:4px">'+label+'</div>':'')+'<div style="position:relative"><div class="wband"></div><div class="wheel" id="'+id+'"><div class="wpad"></div>'+items.map(function(it,i){return '<div class="wi" data-wi="'+i+'">'+it.label+'</div>';}).join('')+'<div class="wpad"></div></div></div></div>';}
+function initWheel(id,items,idx,onChange){
+  var el=document.getElementById(id);if(!el)return;var cur=idx,tm=null,IH=44;
+  function mark(i){var ws=el.querySelectorAll('.wi');ws.forEach(function(w,j){w.classList.toggle('on',j===i);});}
+  el.scrollTop=idx*IH;mark(idx);
+  el.addEventListener('scroll',function(){var i=Math.max(0,Math.min(items.length-1,Math.round(el.scrollTop/IH)));mark(i);clearTimeout(tm);tm=setTimeout(function(){if(i!==cur){cur=i;onChange(items[i].v);}},90);});
+  el.addEventListener('click',function(e){var w=e.target.closest('.wi');if(!w)return;var i=+w.dataset.wi;el.scrollTo({top:i*IH,behavior:'smooth'});});
+}
+function splitNo(v){var m=String(v||'').match(/^(\d+)(.*)$/);return m?{n:+m[1],x:m[2]}:{n:1,x:''};}
+function applyCur(key,v){var cu=D.settings.cur;v=String(v).trim();if(!v)return;if(key==='scene'&&v!==String(cu.scene)){cu.cut='1';cu.take=1;}else if(key==='cut'&&v!==String(cu.cut)){cu.take=1;}cu[key]=v;touchSettings();}
+function incMedia(v){var m=String(v||'').match(/^(.*?)(\d+)$/);if(!m)return v;var n=String(parseInt(m[2],10)+1);while(n.length<m[2].length)n='0'+n;return m[1]+n;}
 function ndLabel(v){for(var i=0;i<ND.length;i++)if(ND[i][0]===v)return ND[i][1];return v;}
 function filterText(c){return 'ND '+ndLabel(c.nd)+((c.fx||'').trim()?' ・ '+c.fx.trim():'');}
-function camSnap(k){var c=cam(k);return {cam:k,body:c.body,lensType:shown(c,'lensType'),lens:shown(c,'lens'),iris:shown(c,'iris'),wb:shown(c,'wb'),nd:ndLabel(c.nd),fx:(c.fx||'').trim(),iso:c.iso,shutter:c.shutter,fps:c.fps,format:c.format};}
+function camSnap(k){var c=cam(k);return {cam:k,media:(c.media||'').trim(),body:c.body,lensType:shown(c,'lensType'),lens:shown(c,'lens'),iris:shown(c,'iris'),tstop:c.tstop||'',wb:shown(c,'wb'),nd:ndLabel(c.nd),fx:(c.fx||'').trim(),iso:c.iso,shutter:c.shutter,fps:c.fps,format:c.format};}
 
 /* TC */
 function base(f){return Math.round(FPSR[f]||24);}
@@ -212,7 +244,7 @@ function vHome(){
   if(!days.length)h+='<div class="card note">まだ記録がありません。下の「新しい撮影を始める」から記録を始めてください。</div>';
   days.forEach(function(d){
     var c={OK:0,KEEP:0,NG:0},sc=[],cams={};
-    d.takes.forEach(function(t){c[t.status]=(c[t.status]||0)+1;if(sc.indexOf(t.scene)<0)sc.push(t.scene);cams[t.cam]=1;});
+    d.takes.forEach(function(t){c[t.status]=(c[t.status]||0)+1;if(sc.indexOf(t.scene)<0)sc.push(t.scene);(t.cams||[t.cam]).forEach(function(q){cams[q]=1;});});
     h+='<button class="card hold" data-day="'+esc(dayKey(d.date))+'" style="display:flex;flex-direction:column;gap:8px"><span style="display:flex;justify-content:space-between;align-items:baseline;width:100%"><b style="font-size:18px">'+fmtDate(d.date)+'</b><span class="sec">'+d.takes.length+' テイク</span></span><span style="font-size:13px;color:var(--sub)">'+esc(sc.map(function(s){return 'S'+s;}).join(' ・ '))+'</span><span style="display:flex;gap:6px;align-items:center;width:100%"><span class="badge b-OK">OK '+c.OK+'</span><span class="badge b-KEEP">仮OK '+c.KEEP+'</span><span class="badge b-NG">NG '+c.NG+'</span><span class="mono sec" style="margin-left:auto">'+Object.keys(cams).sort().map(function(k){return k+' CAM';}).join(' ／ ')+'</span></span></button>';
   });
   h+='<div class="spacer"></div><button class="primary" data-act="newShoot" style="position:sticky;bottom:12px;height:64px;font-size:18px">＋ 新しい撮影を始める</button>';
@@ -220,23 +252,27 @@ function vHome(){
 }
 
 function vRecord(){
-  var s=D.settings,k=s.activeCam,c=cam(),pv=s.lastCam[k]||null,r=S.rec,ses=s.session;
+  var s=D.settings;var L0=lit();if(L0.length&&L0.indexOf(s.activeCam)<0)s.activeCam=L0[0];
+  var k=s.activeCam,c=cam(),pv=s.lastCam[k]||null,r=S.rec,ses=s.session;
   function ch(key){if(!pv)return false;if(key==='lens'&&shown(c,'lensType')!==shown(pv,'lensType'))return true;return key==='filter'?(c.nd!==pv.nd||(c.fx||'').trim()!==(pv.fx||'').trim()):shown(c,key)!==shown(pv,key);}
   var age=syncAge(k);
-  var h='<div class="top"><div style="display:flex;align-items:center;gap:8px"><button class="pill out" data-go="home" style="font-weight:700">‹ ホーム</button><button class="pill out" data-act="editDate" style="font-weight:700">撮影 '+fmtDate(ses?ses.date:today())+' ▾</button></div><div style="display:flex;gap:8px"><button class="pill" data-day="'+esc(dayKey(ses?ses.date:today()))+'">一覧</button><button class="pill" data-act="swapCam" style="font-weight:700"><span class="dot" style="background:'+(k==='A'?'var(--keep)':'#6FA8FF')+'"></span>'+k+' CAM</button></div></div>';
+  var h='<div class="top"><div style="display:flex;align-items:center;gap:8px"><button class="pill out" data-go="home" style="font-weight:700">‹ ホーム</button><button class="pill out" data-act="editDate" style="font-weight:700">撮影 '+fmtDate(ses?ses.date:today())+' ▾</button></div><button class="pill" data-day="'+esc(dayKey(ses?ses.date:today()))+'">一覧</button></div>';
+  var L=lit();
+  h+='<div class="camrow"><span class="lbl">収録</span>'+CAMS.map(function(x){return '<button class="camchip c'+x+(L.indexOf(x)>=0?' on':'')+'" data-roll="'+x+'" aria-pressed="'+(L.indexOf(x)>=0)+'">'+x+'</button>';}).join('')+'<button class="mbtn" data-act="media"><span class="lbl">メディア</span><b class="mono">'+(L.length?L.map(function(x){return esc(cam(x).media||(x+'未入力'));}).join('・'):'—')+'</b></button></div>';
   h+='<div class="g3"><button class="box" data-act="editScene"><span class="lbl">シーン</span><span class="big">'+esc(s.cur.scene)+'</span></button><button class="box" data-act="editCut"><span class="lbl">カット</span><span class="big">'+esc(s.cur.cut)+'</span></button><div class="box"><span class="lbl">テイク</span><span style="display:flex;align-items:center"><button class="step" data-act="takeMinus" aria-label="テイクを減らす">−</button><span class="big" style="min-width:26px;text-align:center">'+s.cur.take+'</span><button class="step" data-act="takePlus" aria-label="テイクを増やす">+</button></span></div></div>';
   var scn=findScene(s.cur.scene);
   if(scn)h+='<button class="script" data-scn="'+scn.no+'"><span style="display:flex;justify-content:space-between;align-items:baseline;width:100%"><span class="hd">'+esc(scn.no+'　'+scn.head)+'</span><span class="lbl">台本 p.'+scn.page+'</span></span><span class="ln">'+esc(firstLine(scn))+'</span></button>';
   else h+='<button class="script" data-go="script"><span class="ln">'+(script()?'台本にシーン'+esc(s.cur.scene)+'がありません':'台本が未読み込みです（タップで読み込み）')+'</span></button>';
 
-  h+='<div class="g3">'+[['lens','レンズ'],['iris','絞り'],['wb','WB']].map(function(x){return '<button class="tile'+(ch(x[0])?' ch':'')+'" data-pick="'+x[0]+'"><span class="lbl">'+x[1]+(ch(x[0])?'<span class="chg">変更</span>':'')+'</span><b>'+esc(shown(c,x[0]))+'</b>'+(x[0]==='lens'&&shown(c,'lensType')?'<span class="lbl" style="max-width:100%;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(shown(c,'lensType'))+'</span>':'')+'</button>';}).join('')+'</div>';
-  h+='<button class="frow'+(ch('filter')?' ch':'')+'" data-pick="filter"><span class="lbl" style="min-width:52px">フィルター</span><span class="v">'+esc(filterText(c))+'</span>'+(ch('filter')?'<span class="chg" style="font-size:11px">変更</span>':'')+'</button>';
-  h+='<div class="sub1 mono"><span>'+esc(c.body)+'</span><span>ISO '+esc(c.iso)+'</span><span>'+esc(c.shutter)+'</span><span>'+esc(c.fps)+'fps</span></div>';
+  var CC=CAMCOL[k],CT='<span class="ctag" style="background:'+CC+'">'+k+'</span>',BS=' style="border:2px solid '+CC+'"';
+  h+='<div class="g3">'+[['lens','レンズ'],['iris','絞り'],['wb','WB']].map(function(x){return '<button class="tile'+(ch(x[0])?' ch':'')+'" data-pick="'+x[0]+'"'+BS+'><span class="lbl">'+CT+x[1]+(ch(x[0])?'<span class="chg">変更</span>':'')+'</span>'+'<b>'+esc(shown(c,x[0]))+'</b>'+(x[0]==='lens'&&shown(c,'lensType')?'<span class="lbl" style="max-width:100%;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(shown(c,'lensType'))+'</span>':'')+'</button>';}).join('')+'</div>';
+  h+='<button class="frow'+(ch('filter')?' ch':'')+'" data-pick="filter"'+BS+'><span class="lbl" style="min-width:66px">'+CT+'フィルター</span><span class="v">'+esc(filterText(c))+'</span>'+(ch('filter')?'<span class="chg" style="font-size:11px">変更</span>':'')+'</button>';
+  h+='<div class="sub1 mono" style="align-items:center"><button class="pill out" data-act="swapCam" style="height:40px;font-size:14px;font-weight:700;padding:0 14px;border-width:1.5px;border-color:'+CC+';color:'+CC+'">'+k+' CAMの設定'+(L.length>1?' ⇄':'')+'</button><span>'+esc(c.body)+'</span><span>ISO '+esc(c.iso)+'</span><span>'+esc(c.shutter)+'</span><span>'+esc(c.fps)+'fps</span></div>';
   h+='<div class="g3"><button class="st ok'+(r.status==='OK'?' on':'')+'" data-st="OK">OK</button><button class="st keep'+(r.status==='KEEP'?' on':'')+'" data-st="KEEP">仮OK</button><button class="st ng'+(r.status==='NG'?' on':'')+'" data-st="NG">NG</button></div>';
   if(r.markedAt)h+='<div class="sec" style="text-align:center">'+({OK:'OK',KEEP:'仮OK',NG:'NG'}[r.status])+' を押した時刻 <b class="mono" style="color:var(--tx);font-size:15px">'+clock(r.markedAt)+'</b></div>';
   if(r.status==='NG')h+='<div class="chips">'+REASONS.map(function(x){return '<button class="chip'+(r.reasons[x]?' on':'')+'" data-reason="'+x+'">'+x+'</button>';}).join('')+'</div>';
   h+='<input class="inp" data-bind="rec.memo" value="'+esc(r.memo)+'" placeholder="メモ（芝居・繋がり）" aria-label="メモ">';
-  h+='<div class="spacer"></div><button class="primary" data-act="commit"'+(r.status?'':' disabled')+'>'+(r.status==='OK'?'記録して C'+nextCut(s.cur.cut)+'-T1 へ':r.status?'記録して T'+(s.cur.take+1)+' へ':'OK／仮OK／NG を選んでください')+'</button>';
+  h+='<div class="spacer"></div><button class="primary" data-act="commit"'+(r.status&&L.length?'':' disabled')+'>'+(!L.length?'収録カメラ（A／B）を点灯してください':r.status==='OK'?'記録して C'+nextCut(s.cur.cut)+'-T1 へ':r.status?'記録して T'+(s.cur.take+1)+' へ':'OK／仮OK／NG を選んでください')+'</button>';
   return h;
 }
 
@@ -257,7 +293,7 @@ function vDayInner(){
     if(g!==last){h+='<div class="grp">'+esc(g)+'</div>';last=g;}
     var col={OK:'var(--ok)',KEEP:'var(--keep)',NG:'var(--ng)'}[t.status];
     var note=[(t.reasons||[]).join('・'),t.memo].filter(Boolean).join(' ／ ');
-    h+='<button class="row" data-edit="'+t.id+'"><span class="bar" style="background:'+col+'"></span><span class="code">'+esc(t.cut)+'-'+t.take+'</span><span class="badge b-'+t.status+'" style="min-width:40px;text-align:center">'+({OK:'OK',KEEP:'仮OK',NG:'NG'}[t.status])+'</span><span class="note">'+esc(note||((t.lensType?t.lensType+' ':'')+t.lens+' '+t.iris+' '+(t.nd&&t.nd!=='なし'?'ND '+t.nd:'NDなし')))+(t.history&&t.history.length?' <span style="color:var(--keep)">修正済</span>':'')+'</span><span class="mono sec">'+esc(t.time||durOf(t))+'</span></button>';
+    h+='<button class="row" data-edit="'+t.id+'"><span class="bar" style="background:'+col+'"></span><span class="code">'+esc(t.cut)+'-'+t.take+'</span><span class="badge b-'+t.status+'" style="min-width:40px;text-align:center">'+({OK:'OK',KEEP:'仮OK',NG:'NG'}[t.status])+'</span><span class="lbl mono" style="min-width:24px">'+esc(t.cam||'')+'</span><span class="note">'+esc(note||((t.lensType?t.lensType+' ':'')+t.lens+' '+t.iris+' '+(t.nd&&t.nd!=='なし'?'ND '+t.nd:'NDなし')))+(t.history&&t.history.length?' <span style="color:var(--keep)">修正済</span>':'')+'</span><span class="mono sec">'+esc(t.time||durOf(t))+'</span></button>';
   });
   return h;
 }
@@ -269,7 +305,9 @@ function vEdit(){
   h+='<div class="g3">'+f('scene','シーン')+f('cut','カット')+f('take','テイク')+'</div>';
   h+='<div class="g3"><button class="st ok'+(d.status==='OK'?' on':'')+'" data-dst="OK" style="height:56px">OK</button><button class="st keep'+(d.status==='KEEP'?' on':'')+'" data-dst="KEEP" style="height:56px">仮OK</button><button class="st ng'+(d.status==='NG'?' on':'')+'" data-dst="NG" style="height:56px">NG</button></div>';
   if(d.status==='NG')h+='<div class="chips">'+REASONS.map(function(x){return '<button class="chip'+(d.reasons.indexOf(x)>=0?' on':'')+'" data-dreason="'+x+'">'+x+'</button>';}).join('')+'</div>';
-  h+=f('time','判定時刻',1);
+  var dcs=d.cams||[];
+  h+='<div class="camrow"><span class="lbl">収録カメラ</span>'+CAMS.map(function(x){return '<button class="camchip c'+x+(dcs.indexOf(x)>=0?' on':'')+'" data-dcam="'+x+'">'+x+'</button>';}).join('')+'</div>';
+  h+='<div class="g2">'+f('time','判定時刻',1)+f('media','メディア',1)+'</div>';
   h+='<div class="g2">'+f('lensType','レンズ種類')+f('lens','焦点距離',1)+'</div>';
   h+='<div class="g2">'+f('iris','絞り',1)+f('wb','WB',1)+'</div>';
   h+='<div style="display:grid;grid-template-columns:1fr 2fr;gap:8px">'+f('nd','ND',1)+f('fx','エフェクト')+'</div>';
@@ -282,8 +320,8 @@ function vEdit(){
 function vCamera(){
   var k=S.camSel||D.settings.activeCam,c=cam(k),cams=D.settings.cams;
   var h='<div class="top"><button class="pill" data-back="1">‹ 戻る</button><span class="h1">カメラ設定</span><span style="width:60px"></span></div>';
-  h+='<div class="seg">'+['A','B'].map(function(x){return '<button class="'+(x===k?'on':'')+'" data-camsel="'+x+'"><b style="font-size:18px">'+x+' CAM</b><span class="lbl">'+esc(cams[x].body)+'</span></button>';}).join('')+'</div>';
-  h+='<div class="sec">よく変える（記録画面からも変更可）</div><div class="g3">'+[['lens','レンズ'],['iris','絞り'],['wb','WB']].map(function(x){return '<button class="tile" data-pick="'+x[0]+'" style="height:72px"><span class="lbl">'+x[1]+'</span><b>'+esc(shown(c,x[0]))+'</b>'+(x[0]==='lens'&&shown(c,'lensType')?'<span class="lbl">'+esc(shown(c,'lensType'))+'</span>':'')+'</button>';}).join('')+'</div>';
+  h+='<div class="seg">'+CAMS.map(function(x){return '<button class="'+(x===k?'on':'')+'" data-camsel="'+x+'"><b style="font-size:18px">'+x+' CAM</b><span class="lbl">'+esc(cams[x].body)+'</span></button>';}).join('')+'</div>';
+  h+='<div class="sec">よく変える（記録画面からも変更可）</div><div class="g3">'+[['lens','レンズ'],['iris','絞り'],['wb','WB']].map(function(x){return '<button class="tile" data-pick="'+x[0]+'" style="height:72px;border:2px solid '+CAMCOL[k]+'"><span class="lbl">'+x[1]+'</span><b>'+esc(shown(c,x[0]))+'</b>'+(x[0]==='lens'&&shown(c,'lensType')?'<span class="lbl">'+esc(shown(c,'lensType'))+'</span>':'')+'</button>';}).join('')+'</div>';
   h+='<div class="sec">フィルター</div><div class="list"><button class="li" data-pick="filter"><span class="k">ND</span><span class="v mono">'+esc(ndLabel(c.nd))+'</span></button><button class="li" data-pick="filter"><span class="k">エフェクト</span><span class="v">'+esc((c.fx||'').trim()||'なし')+'</span></button></div>';
   h+='<div class="sec">基本設定</div><div class="list">'+[['body','ボディ'],['iso','ISO'],['shutter','シャッター'],['fps','fps'],['format','収録形式']].map(function(x){return '<button class="li" data-field="'+x[0]+'"><span class="k">'+x[1]+'</span><span class="v mono">'+esc(c[x[0]])+(x[0]==='fps'?' fps':'')+'</span></button>';}).join('')+'</div>';
   h+='<div class="spacer"></div><button class="primary" data-act="useCam">'+k+' CAM で記録する</button>';
@@ -293,7 +331,7 @@ function vCamera(){
 function vTcSync(){
   var k=S.camSel||D.settings.activeCam,c=cam(k),sy=D.settings.tc[k],age=syncAge(k);
   var h='<div class="top"><button class="pill" data-back="1">‹ 戻る</button><span class="h1">TC合わせ</span><button class="pill" data-go="guide">使い方</button></div>';
-  h+='<div class="seg">'+['A','B'].map(function(x){return '<button class="'+(x===k?'on':'')+'" data-camsel="'+x+'"><b style="font-size:18px">'+x+' CAM</b><span class="lbl">'+esc(D.settings.cams[x].fps)+' fps</span></button>';}).join('')+'</div>';
+  h+='<div class="seg">'+CAMS.map(function(x){return '<button class="'+(x===k?'on':'')+'" data-camsel="'+x+'"><b style="font-size:18px">'+x+' CAM</b><span class="lbl">'+esc(D.settings.cams[x].fps)+' fps</span></button>';}).join('')+'</div>';
   h+='<div class="card" style="text-align:center"><div class="lbl">アプリのTC（'+k+' CAM）</div><div class="mono" id="liveTC" style="font-size:38px;font-weight:700;margin-top:4px">'+fmtTC(tcFrames(k),c.fps)+'</div><div class="sec" style="margin-top:4px">'+(sy?'最終同期 '+esc(sy.at)+'（'+(age<1?Math.round(age*60)+'分前':age.toFixed(1)+'時間前')+'）':'<span style="color:var(--keep)">未同期：iPhoneの時計そのままです</span>')+'</div></div>';
   var ss2=syncState(k);
   if(ss2==='ok')h+='<div class="card" style="border:1px solid var(--ok);color:var(--ok);font-size:14px;font-weight:700">● 今日の同期が済んでいます。この後は合わせ直さなくてOKです（バッテリー交換などでカメラのTCが変わったときだけ合わせ直してください）</div>';
@@ -343,7 +381,7 @@ function openSheet(s){S.sheet=s;renderSheet();}
 function closeSheet(){S.sheet=null;layer.innerHTML='';render();}
 function renderSheet(){
   var s=S.sheet;if(!s){layer.innerHTML='';return;}
-  var body='',title='';
+  var body='',title='',W=[];
   if(s.type==='pick'){
     var k=s.cam,c=cam(k),key=s.key;
     if(key==='filter'){
@@ -357,7 +395,10 @@ function renderSheet(){
       if(key==='lens'){body+='<div class="sec">種類</div><div class="g3">'+LTYPE.map(function(v){return '<button class="opt'+(c.lensType===v?' sel':'')+'" data-opt="lensType" data-val="'+v+'">'+v+'</button>';}).join('')+'</div>';
         if(c.lensType==='その他')body+='<input class="inp" data-cbind="lensTypeCustom" value="'+esc(c.lensTypeCustom||'')+'" placeholder="例：Cooke S4/i">';
         body+='<div class="sec">焦点距離</div>';}
-      body+='<div class="g3">'+L.map(function(v){return '<button class="opt'+(c[key]===v?' sel':'')+'" data-opt="'+key+'" data-val="'+v+'">'+v+'</button>';}).join('')+'</div>';
+      if(key==='iris'){var iw=IRISW.map(function(v){return {v:v,label:v};}),ii=IRISW.indexOf(c.iris);if(ii<0)ii=IRISW.indexOf('F2.8');
+        body+=wheelHtml('wIris',iw,'')+'<button class="opt'+(c.iris==='その他'?' sel':'')+'" data-act="irisOther">その他（記入）</button>';
+        W.push(['wIris',iw,ii,function(v){var cc=cam(S.sheet.cam);if(cc.iris===v)return;var wasO=cc.iris==='その他';cc.iris=v;touchSettings();if(wasO)renderSheet();}]);}
+      else body+='<div class="g3">'+L.map(function(v){return '<button class="opt'+(c[key]===v?' sel':'')+'" data-opt="'+key+'" data-val="'+v+'">'+v+'</button>';}).join('')+'</div>';
       if(c[key]==='その他')body+='<label style="display:flex;flex-direction:column;gap:8px"><span class="sec">'+{lens:'レンズ',iris:'絞り',wb:'WB'}[key]+'（自由記入）</span><input class="inp" data-cbind="'+key+'Custom" value="'+esc(c[key+'Custom'])+'" placeholder="'+{lens:'例：ズーム 32mm',iris:'例：F3.5',wb:'例：4800K ／ Tint +5'}[key]+'"></label>';
     }
   }else if(s.type==='text'){
@@ -372,6 +413,19 @@ function renderSheet(){
     body='<div><div style="font-size:17px;font-weight:900">'+esc(sx.head)+'</div><div class="sec">台本 p.'+sx.page+'</div></div><div class="sbody">'+bodyHtml(sx)+'</div>';
     body+='<div class="g2"><button class="opt" data-scn="'+(ix>0?scc.scenes[ix-1].no:sx.no)+'"'+(ix>0?'':' disabled')+'>‹ 前のシーン</button><button class="opt" data-scn="'+(ix<scc.scenes.length-1?scc.scenes[ix+1].no:sx.no)+'"'+(ix<scc.scenes.length-1?'':' disabled')+'>次のシーン ›</button></div>';
     if(D.settings.session&&sceneNum(D.settings.cur.scene)!==sx.no)body+='<button class="primary" data-usescn="'+sx.no+'">このシーンを記録する</button>';
+  }else if(s.type==='wScene'||s.type==='wCut'){
+    var isS=s.type==='wScene',max=99,scx=script();
+    if(isS){max=150;if(scx)scx.scenes.forEach(function(q){max=Math.max(max,+q.no||0);});}
+    var nums=[];for(var i=1;i<=max;i++){var lab=String(i);if(isS&&scx){var fs=null;scx.scenes.forEach(function(q){if(q.no===String(i))fs=q;});if(fs)lab=i+'<small>'+esc(fs.head)+'</small>';}nums.push({v:i,label:lab});}
+    var sf=SFX.slice();if(sf.indexOf(s.x)<0)sf.push(s.x);
+    var sfx=sf.map(function(x){return {v:x,label:x||'—'};});
+    title=isS?'シーン':'カット';
+    body='<div style="display:grid;grid-template-columns:3fr 1fr;gap:8px">'+wheelHtml('wN',nums,'番号')+wheelHtml('wX',sfx,'枝番')+'</div><button class="pill out" data-act="'+(isS?'manualScene':'manualCut')+'" style="justify-content:center;height:40px">手で入力する</button>';
+    W.push(['wN',nums,Math.max(0,Math.min(max,s.n)-1),function(v){S.sheet.n=v;}]);
+    W.push(['wX',sfx,sf.indexOf(s.x),function(v){S.sheet.x=v;}]);
+  }else if(s.type==='media'){
+    title='メディア番号';
+    body=CAMS.map(function(x){return '<label style="display:flex;flex-direction:column;gap:6px"><span class="sec">'+x+' CAM</span><span style="display:flex;gap:8px"><input class="inp mono" id="media'+x+'" value="'+esc(cam(x).media||'')+'" placeholder="例：'+x+'002" autocapitalize="characters" autocomplete="off" style="font-size:20px"><button class="opt" data-mplus="'+x+'" style="min-width:64px">+1</button></span></label>';}).join('')+'<div class="note">カードを替えたら「+1」で番号を1つ進められます。点灯しているカメラのメディア番号がテイクに記録されます。</div>';
   }else if(s.type==='sesDate'){
     title='撮影日を変更';
     body='<input class="inp" type="date" id="sesDateInp" value="'+esc(s.value)+'" style="font-size:20px;height:56px">';
@@ -384,15 +438,16 @@ function renderSheet(){
   }else if(s.type==='newShoot'){
     title='新しい撮影を始める';
     body='<label style="display:flex;flex-direction:column;gap:6px"><span class="sec">撮影日</span><input class="inp" type="date" id="nsDate" value="'+esc(s.date)+'"></label>';
-    body+='<div class="sec">使うカメラ</div><div class="g2">'+['A','B'].map(function(x){return '<button class="opt'+(s.cams[x]?' sel':'')+'" data-nscam="'+x+'">'+x+' CAM</button>';}).join('')+'</div>';
+    body+='<div class="sec">使うカメラ</div><div class="g3">'+CAMS.map(function(x){return '<button class="opt'+(s.cams[x]?' sel':'')+'" data-nscam="'+x+'">'+x+' CAM</button>';}).join('')+'</div>';
     body+='<div class="g3"><label style="display:flex;flex-direction:column;gap:6px"><span class="sec">シーン</span><input class="inp" id="nsScene" value="'+esc(s.scene)+'"></label><label style="display:flex;flex-direction:column;gap:6px"><span class="sec">カット</span><input class="inp" id="nsCut" value="'+esc(s.cut)+'"></label><label style="display:flex;flex-direction:column;gap:6px"><span class="sec">テイク</span><input class="inp" id="nsTake" inputmode="numeric" value="'+esc(s.take)+'"></label></div>';
     body+='<button class="primary" data-act="startShoot">記録を始める</button>';
   }else if(s.type==='export'){
     title='書き出し';
     body='<div class="note">CSV（表計算・DaVinciでの照合用）です。「ファイルで保存・共有」でファイルアプリやLINEなどに送れます。「コピー」で文字として貼り付けることもできます。</div><textarea class="inp mono" id="csvText" style="height:180px;padding:10px;font-size:11px" readonly>'+esc(s.csv)+'</textarea><div class="g2"><button class="opt" data-act="saveCsv">ファイルで保存・共有</button><button class="opt" data-act="copyCsv">コピー</button></div>';
   }
-  var done=(s.type==='text'||s.type==='pick'||s.type==='projects'||s.type==='sesDate')?'<button class="pill" data-act="sheetDone" style="background:var(--tx);color:#000;font-weight:700;height:40px">決定</button>':'<button class="pill" data-act="sheetClose" style="height:40px">閉じる</button>';
+  var done=(s.type==='text'||s.type==='pick'||s.type==='projects'||s.type==='sesDate'||s.type==='wScene'||s.type==='wCut'||s.type==='media')?'<button class="pill" data-act="sheetDone" style="background:var(--tx);color:#000;font-weight:700;height:40px">決定</button>':'<button class="pill" data-act="sheetClose" style="height:40px">閉じる</button>';
   layer.innerHTML='<div class="overlay" data-act="sheetBg"><div class="sheet" data-stop="1"><div style="display:flex;justify-content:space-between;align-items:center"><span class="h1">'+title+'</span>'+done+'</div>'+body+'</div></div>';
+  W.forEach(function(w){initWheel(w[0],w[1],w[2],w[3]);});
   var si=document.getElementById('sheetInput');if(si)setTimeout(function(){si.focus();si.select();},50);
 }
 
@@ -418,9 +473,11 @@ function commit(){
   var s=D.settings,ses=s.session,k=s.activeCam,r=S.rec;if(!r.status)return;
   var key=dayKey(ses.date),day=D.days[key];
   if(!day)day=D.days[key]={projectId:s.projectId,date:ses.date,takes:[],updatedAt:0};
-  var snap=camSnap(k),now=Date.now();
+  var Lc=lit();if(!Lc.length)return;k=Lc.indexOf(k)>=0?k:Lc[0];var snap=camSnap(Lc[0]),now=Date.now();
   var t={id:uid('t'),date:ses.date,scene:String(s.cur.scene),cut:String(s.cur.cut),take:s.cur.take,status:r.status,reasons:REASONS.filter(function(x){return r.reasons[x];}),memo:r.memo.trim(),time:clock(r.markedAt||now),markedAt:r.markedAt||now,createdAt:now,createdLabel:nowStamp(),updatedAt:now,history:[]};
   for(var x in snap)t[x]=snap[x];
+  t.cams=Lc.slice();t.cam=Lc.join('+');t.camSets={};Lc.forEach(function(q){t.camSets[q]=camSnap(q);s.lastCam[q]=clone(cam(q));});
+  t.media=Lc.map(function(q){return (cam(q).media||'').trim();}).filter(Boolean).join(' / ');
   if(t.status!=='NG')t.reasons=[];
   day.takes.push(t);day.updatedAt=now;
   s.lastCam[k]=clone(cam(k));
@@ -431,13 +488,13 @@ function commit(){
 }
 function openEdit(id){
   var day=D.days[S.dayKey];if(!day)return;var t=day.takes.filter(function(x){return x.id===id;})[0];if(!t)return;
-  S.editId=id;S.draft=clone(t);if(S.draft.time==null)S.draft.time='';if(S.draft.lensType==null)S.draft.lensType='';S.draft.take=String(t.take);go('edit');
+  S.editId=id;S.draft=clone(t);if(S.draft.tstop==null)S.draft.tstop='';if(!S.draft.cams)S.draft.cams=[t.cam||'A'];if(S.draft.media==null)S.draft.media='';if(S.draft.time==null)S.draft.time='';if(S.draft.lensType==null)S.draft.lensType='';S.draft.take=String(t.take);go('edit');
 }
 function saveEdit(){
   var day=D.days[S.dayKey];if(!day)return;var i=-1;day.takes.forEach(function(x,j){if(x.id===S.editId)i=j;});if(i<0)return;
   var old=day.takes[i],d=S.draft,b=clone(old);delete b.history;
-  var n=clone(old);['scene','cut','status','memo','time','lensType','lens','iris','wb','nd','fx'].forEach(function(k){n[k]=typeof d[k]==='string'?d[k].trim():d[k];});
-  n.take=parseInt(d.take,10)||old.take;n.reasons=d.status==='NG'?d.reasons.slice():[];
+  var n=clone(old);['scene','cut','status','memo','time','media','lensType','lens','iris','wb','nd','fx'].forEach(function(k){n[k]=typeof d[k]==='string'?d[k].trim():d[k];});
+  n.take=parseInt(d.take,10)||old.take;if(d.cams&&d.cams.length){n.cams=d.cams.slice();n.cam=n.cams.join('+');}n.reasons=d.status==='NG'?d.reasons.slice():[];
   var f=old.fps||'24',a=parseTC(n.tcIn,f),o=parseTC(n.tcOut,f);n.inF=a;n.outF=o;
   var changed=JSON.stringify(b)!==JSON.stringify((function(){var c=clone(n);delete c.history;return c;})());
   if(!changed){toast('変更はありません');return;}
@@ -497,21 +554,33 @@ function shareFile(name,text,type){
   dl();
   function dl(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:type}));a.download=safe;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1000);toast('保存しました');}
 }
+var CSVF=[['メディア','media'],['ボディ','body'],['レンズ種類','lensType'],['レンズ','lens'],['絞り','iris'],['WB','wb'],['ND','nd'],['エフェクト','fx'],['ISO','iso'],['シャッター','shutter'],['fps','fps']];
+function camSnap(t,k){var cs=t.cams&&t.cams.length?t.cams:[(t.cam||'A').charAt(0)];if(cs.indexOf(k)<0)return null;var q=t.camSets&&t.camSets[k];if(q)return q;return cs[0]===k?t:null;}
 function csvOf(day){
-  var head=['撮影日','シーン','カット','テイク','判定','NG理由','判定時刻','カメラ','ボディ','レンズ種類','レンズ','絞り','WB','ND','エフェクト','ISO','シャッター','fps','メモ','修正'];
-  var rows=day.takes.slice().sort(function(a,b){return a.createdAt-b.createdAt;}).map(function(t){return [t.date,t.scene,t.cut,t.take,{OK:'OK',KEEP:'仮OK',NG:'NG'}[t.status],(t.reasons||[]).join('・'),t.time||'',t.cam,t.body,t.lensType||'',t.lens,t.iris,t.wb,t.nd,t.fx,t.iso,t.shutter,t.fps,t.memo,(t.history||[]).length];});
+  var takes=day.takes.slice().sort(function(a,b){return a.createdAt-b.createdAt;});
+  var used=CAMS.filter(function(k){return k==='A'||takes.some(function(t){return camSnap(t,k);});});
+  var head=['撮影日','シーン','カット','テイク','判定','NG理由','判定時刻','カメラ'];
+  used.forEach(function(k){CSVF.forEach(function(f){head.push(k+' '+f[0]);});});
+  head.push('メモ','修正');
+  var rows=takes.map(function(t){
+    var r=[t.date,t.scene,t.cut,t.take,{OK:'OK',KEEP:'仮OK',NG:'NG'}[t.status],(t.reasons||[]).join('・'),t.time||'',t.cam];
+    used.forEach(function(k){var q=camSnap(t,k);CSVF.forEach(function(f){r.push(q?(q[f[1]]||''):'');});});
+    r.push(t.memo,(t.history||[]).length);return r;});
   return [head].concat(rows).map(function(r){return r.map(function(v){v=String(v==null?'':v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}).join(',');}).join('\n');
 }
 function setDeep(path,val){var p=path.split('.');if(p[0]==='rec')S.rec[p[1]]=val;else if(p[0]==='draft'&&S.draft)S.draft[p[1]]=val;}
 
 document.addEventListener('click',function(e){
-  var t=e.target.closest('[data-act],[data-go],[data-back],[data-day],[data-edit],[data-st],[data-reason],[data-dst],[data-dreason],[data-pick],[data-opt],[data-topt],[data-scene],[data-camsel],[data-field],[data-proj],[data-nscam],[data-tcfps],[data-nudge],[data-scn],[data-usescn],[data-sf]');
+  var t=e.target.closest('[data-act],[data-go],[data-back],[data-day],[data-edit],[data-st],[data-reason],[data-dst],[data-dreason],[data-pick],[data-opt],[data-topt],[data-scene],[data-camsel],[data-field],[data-proj],[data-nscam],[data-roll],[data-mplus],[data-dcam],[data-tcfps],[data-nudge],[data-scn],[data-usescn],[data-sf]');
   if(!t){return;}
   var d=t.dataset,s=D.settings;
   if(d.act==='sheetBg'){if(e.target===t)closeSheet();return;}
   if(d.scn){openSheet({type:'scene',no:d.scn});return;}
   if(d.usescn){s.cur.scene=d.usescn;s.cur.cut='1';s.cur.take=1;touchSettings();closeSheet();if(S.view!=='record'){S.view='record';render();}return;}
   if(d.sf){S.sfilter=d.sf;render();return;}
+  if(d.roll){if(!s.rolling)lit();s.rolling[d.roll]=!s.rolling[d.roll];if(s.session)s.session.cams=lit();touchSettings();render();return;}
+  if(d.mplus){var mi=document.getElementById('media'+d.mplus);if(mi)mi.value=incMedia(mi.value.trim().toUpperCase());return;}
+  if(d.dcam){var dc=S.draft.cams||(S.draft.cams=[]),di=dc.indexOf(d.dcam);if(di>=0)dc.splice(di,1);else dc.push(d.dcam);dc.sort();render();return;}
   if(d.go){go(d.go);return;}
   if(d.back){if(d.back==='day'){S.draft=null;}back();return;}
   if(d.day){if(Date.now()-dayBlock<800)return;S.dayKey=d.day;S.scene='all';go('day');return;}
@@ -533,7 +602,9 @@ document.addEventListener('click',function(e){
   if(d.proj){s.projectId=d.proj;touchSettings();closeSheet();return;}
   if(d.nscam){S.sheet.cams[d.nscam]=!S.sheet.cams[d.nscam];readNewShoot();renderSheet();return;}
   switch(d.act){
-    case 'sheetDone':if(S.sheet&&S.sheet.type==='sesDate'){var dv=document.getElementById('sesDateInp').value;if(dv&&s.session){s.session.date=dv;touchSettings();toast('撮影日を '+fmtDate(dv)+' にしました');}closeSheet();}
+    case 'sheetDone':if(S.sheet&&(S.sheet.type==='wScene'||S.sheet.type==='wCut')){applyCur(S.sheet.type==='wScene'?'scene':'cut',String(S.sheet.n)+S.sheet.x);closeSheet();}
+      else if(S.sheet&&S.sheet.type==='media'){CAMS.forEach(function(x){var el=document.getElementById('media'+x);if(el)cam(x).media=el.value.trim().toUpperCase();});touchSettings();closeSheet();}
+      else if(S.sheet&&S.sheet.type==='sesDate'){var dv=document.getElementById('sesDateInp').value;if(dv&&s.session){s.session.date=dv;touchSettings();toast('撮影日を '+fmtDate(dv)+' にしました');}closeSheet();}
       else if(S.sheet&&S.sheet.type==='text'){var si=document.getElementById('sheetInput');if(si)S.sheet.value=si.value;applyText();}else closeSheet();break;
     case 'sheetClose':closeSheet();break;
     case 'unloadScript':S.sheet={type:'confirmUnload'};layer.innerHTML='<div class="overlay" data-act="sheetBg"><div class="sheet"><span class="h1">台本を外しますか？</span><div class="note">記録したテイクは消えません。外したあと、別の台本を読み込めます。</div><div class="g2"><button class="opt" data-act="sheetClose">やめる</button><button class="opt" data-act="doUnload" style="border-color:var(--ng);color:var(--ng)">外す</button></div></div></div>';break;
@@ -542,16 +613,20 @@ document.addEventListener('click',function(e){
     case 'addProj':var nv=(document.getElementById('newProj').value||'').trim();if(!nv)return;var p={id:'p'+uid(),name:nv};s.projects.push(p);s.projectId=p.id;touchSettings();closeSheet();break;
     case 'renProj':var rv=(document.getElementById('renProj').value||'').trim();if(!rv)return;proj().name=rv;touchSettings();closeSheet();break;
     case 'newShoot':var cu=s.cur;openSheet({type:'newShoot',date:today(),cams:{A:true,B:false},scene:cu.scene,cut:cu.cut,take:'1'});break;
-    case 'startShoot':readNewShoot();var ns=S.sheet;if(!ns.date)return;var cs=['A','B'].filter(function(x){return ns.cams[x];});if(!cs.length)cs=['A'];
-      s.session={projectId:s.projectId,date:ns.date,cams:cs};s.activeCam=cs[0];s.cur={scene:ns.scene.trim()||'1',cut:ns.cut.trim()||'1',take:parseInt(ns.take,10)||1};touchSettings();S.sheet=null;layer.innerHTML='';prevViews=['home'];S.view='record';render();break;
+    case 'startShoot':readNewShoot();var ns=S.sheet;if(!ns.date)return;var cs=CAMS.filter(function(x){return ns.cams[x];});if(!cs.length)cs=['A'];
+      s.session={projectId:s.projectId,date:ns.date,cams:cs};s.rolling={A:cs.indexOf('A')>=0,B:cs.indexOf('B')>=0,C:cs.indexOf('C')>=0};s.activeCam=cs[0];s.cur={scene:ns.scene.trim()||'1',cut:ns.cut.trim()||'1',take:parseInt(ns.take,10)||1};touchSettings();S.sheet=null;layer.innerHTML='';prevViews=['home'];S.view='record';render();break;
     case 'editDate':openSheet({type:'sesDate',value:(s.session&&s.session.date)||today()});break;
-    case 'editScene':openSheet({type:'text',title:'シーン',target:'cur',key:'scene',value:s.cur.scene});break;
-    case 'editCut':openSheet({type:'text',title:'カット',target:'cur',key:'cut',value:s.cur.cut});break;
+    case 'editScene':var sp=splitNo(s.cur.scene);openSheet({type:'wScene',n:sp.n,x:sp.x});break;
+    case 'editCut':var cp=splitNo(s.cur.cut);openSheet({type:'wCut',n:cp.n,x:cp.x});break;
+    case 'manualScene':openSheet({type:'text',title:'シーン',target:'cur',key:'scene',value:s.cur.scene});break;
+    case 'manualCut':openSheet({type:'text',title:'カット',target:'cur',key:'cut',value:s.cur.cut});break;
+    case 'media':openSheet({type:'media'});break;
+    case 'irisOther':cam(S.sheet.cam).iris='その他';touchSettings();renderSheet();break;
     case 'takeMinus':s.cur.take=Math.max(1,s.cur.take-1);touchSettings();render();break;
     case 'takePlus':s.cur.take+=1;touchSettings();render();break;
     case 'tcIn':var f=tcFrames(s.activeCam);S.rec.inF=f;S.rec.tcIn=fmtTC(f,cam().fps);S.rec.outF=null;S.rec.tcOut='';render();break;
     case 'tcOut':var g=tcFrames(s.activeCam);S.rec.outF=g;S.rec.tcOut=fmtTC(g,cam().fps);render();break;
-    case 'swapCam':var sc=(s.session&&s.session.cams)||['A'];if(sc.length>1){s.activeCam=s.activeCam==='A'?'B':'A';touchSettings();render();}else{S.camSel=s.activeCam;go('camera');}break;
+    case 'swapCam':var Ls=lit();if(Ls.length>1){s.activeCam=Ls[(Ls.indexOf(s.activeCam)+1)%Ls.length];touchSettings();render();}else{S.camSel=s.activeCam;go('camera');}break;
     case 'commit':commit();break;
     case 'useCam':s.activeCam=S.camSel||s.activeCam;if(s.session&&s.session.cams.indexOf(s.activeCam)<0)s.session.cams.push(s.activeCam);touchSettings();if(s.session){S.view='record';render();}else back();break;
     case 'tcNow':var k=S.camSel||s.activeCam,inp=document.getElementById('camTC'),fr=parseTC(inp.value,cam(k).fps);S.tcDraft=inp.value;
