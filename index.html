@@ -188,6 +188,10 @@ function findScene(x){var sc=script(),n=sceneNum(x);if(!sc||!n)return null;for(v
 function firstLine(sc){for(var i=0;i<sc.body.length;i++)if(sc.body[i]!=='×')return sc.body[i];return '';}
 function sceneStatus(no){var r={takes:0,ok:0};projDays().forEach(function(d){d.takes.forEach(function(t){if(sceneNum(t.scene)===no){r.takes++;if(t.status==='OK')r.ok++;}});});return r;}
 function bodyHtml(sc){return sc.body.map(function(p){if(p==='×')return '<div class="x">×　×　×</div>';var m=p.match(/^([^「」（）]{1,8})「([\s\S]*)$/);if(m)return '<div class="dl"><b>'+esc(m[1])+'</b>「'+esc(m[2])+'</div>';return '<div>'+esc(p)+'</div>';}).join('');}
+function isIns(c){return String(c).indexOf('インサート')===0;}
+function takeTaken(sc,ct,tk){var ses=D.settings.session;if(!ses)return false;var day=D.days[dayKey(ses.date)];if(!day)return false;return day.takes.some(function(t){return String(t.scene)===String(sc)&&String(t.cut)===String(ct)&&+t.take===+tk;});}
+function freeTake(sc,ct){var ses=D.settings.session,day=ses&&D.days[dayKey(ses.date)],m=0;if(day)day.takes.forEach(function(t){if(String(t.scene)===String(sc)&&String(t.cut)===String(ct))m=Math.max(m,+t.take||0);});return m+1;}
+function camCounts(day){var o={};CAMS.forEach(function(k){o[k]=0;});(day.takes||[]).forEach(function(t){var cs=t.cams&&t.cams.length?t.cams:[(t.cam||'A').charAt(0)];cs.forEach(function(k){if(o[k]!=null)o[k]++;});});return o;}
 function nextCut(c){var m=String(c).match(/^(\d+)/);return m?String(parseInt(m[1],10)+1):String(c);}
 function lit(){var r=D.settings.rolling;if(!r){r=D.settings.rolling={};((D.settings.session&&D.settings.session.cams)||['A']).forEach(function(k){r[k]=true;});}return CAMS.filter(function(k){return r[k];});}
 function wheelHtml(id,items,label){return '<div class="wheelbox">'+(label?'<div class="sec" style="text-align:center;margin-bottom:4px">'+label+'</div>':'')+'<div style="position:relative"><div class="wband"></div><div class="wheel" id="'+id+'"><div class="wpad"></div>'+items.map(function(it,i){return '<div class="wi" data-wi="'+i+'">'+it.label+'</div>';}).join('')+'<div class="wpad"></div></div></div></div>';}
@@ -259,7 +263,8 @@ function vRecord(){
   var h='<div class="top"><div style="display:flex;align-items:center;gap:8px"><button class="pill out" data-go="home" style="font-weight:700">‹ ホーム</button><button class="pill out" data-act="editDate" style="font-weight:700">撮影 '+fmtDate(ses?ses.date:today())+' ▾</button></div><button class="pill" data-day="'+esc(dayKey(ses?ses.date:today()))+'">一覧</button></div>';
   var L=lit();
   h+='<div class="camrow"><span class="lbl">収録</span>'+CAMS.map(function(x){return '<button class="camchip c'+x+(L.indexOf(x)>=0?' on':'')+'" data-roll="'+x+'" aria-pressed="'+(L.indexOf(x)>=0)+'">'+x+'</button>';}).join('')+'<button class="mbtn" data-act="media"><span class="lbl">メディア</span><b class="mono">'+(L.length?L.map(function(x){return esc(cam(x).media||(x+'未入力'));}).join('・'):'—')+'</b></button></div>';
-  h+='<div class="g3"><button class="box" data-act="editScene"><span class="lbl">シーン</span><span class="big">'+esc(s.cur.scene)+'</span></button><button class="box" data-act="editCut"><span class="lbl">カット</span><span class="big">'+esc(s.cur.cut)+'</span></button><div class="box"><span class="lbl">テイク</span><span style="display:flex;align-items:center"><button class="step" data-act="takeMinus" aria-label="テイクを減らす">−</button><span class="big" style="min-width:26px;text-align:center">'+s.cur.take+'</span><button class="step" data-act="takePlus" aria-label="テイクを増やす">+</button></span></div></div>';
+  h+='<div class="g3"><button class="box" data-act="editScene"><span class="lbl">シーン</span><span class="big">'+esc(s.cur.scene)+'</span></button><button class="box" data-act="editCut"><span class="lbl">カット</span><span class="big"'+(String(s.cur.cut).length>3?' style="font-size:20px"':'')+'>'+esc(s.cur.cut)+'</span></button><div class="box"><span class="lbl">テイク</span><span style="display:flex;align-items:center"><button class="step" data-act="takeMinus" aria-label="テイクを減らす">−</button><span class="big" style="min-width:26px;text-align:center">'+s.cur.take+'</span><button class="step" data-act="takePlus" aria-label="テイクを増やす">+</button></span></div></div>';
+  if(takeTaken(s.cur.scene,s.cur.cut,s.cur.take))h+='<div style="border:1.5px solid var(--ng);color:var(--ng);border-radius:12px;padding:8px 12px;font-weight:700;font-size:14px">S'+esc(s.cur.scene)+'-C'+esc(s.cur.cut)+'-T'+s.cur.take+' はもう記録されています</div>';
   var scn=findScene(s.cur.scene);
   if(scn)h+='<button class="script" data-scn="'+scn.no+'"><span style="display:flex;justify-content:space-between;align-items:baseline;width:100%"><span class="hd">'+esc(scn.no+'　'+scn.head)+'</span><span class="lbl">台本 p.'+scn.page+'</span></span><span class="ln">'+esc(firstLine(scn))+'</span></button>';
   else h+='<button class="script" data-go="script"><span class="ln">'+(script()?'台本にシーン'+esc(s.cur.scene)+'がありません':'台本が未読み込みです（タップで読み込み）')+'</span></button>';
@@ -272,7 +277,7 @@ function vRecord(){
   if(r.markedAt)h+='<div class="sec" style="text-align:center">'+({OK:'OK',KEEP:'仮OK',NG:'NG'}[r.status])+' を押した時刻 <b class="mono" style="color:var(--tx);font-size:15px">'+clock(r.markedAt)+'</b></div>';
   if(r.status==='NG')h+='<div class="chips">'+REASONS.map(function(x){return '<button class="chip'+(r.reasons[x]?' on':'')+'" data-reason="'+x+'">'+x+'</button>';}).join('')+'</div>';
   h+='<input class="inp" data-bind="rec.memo" value="'+esc(r.memo)+'" placeholder="メモ（芝居・繋がり）" aria-label="メモ">';
-  h+='<div class="spacer"></div><button class="primary" data-act="commit"'+(r.status&&L.length?'':' disabled')+'>'+(!L.length?'収録カメラ（A／B）を点灯してください':r.status==='OK'?'記録して C'+nextCut(s.cur.cut)+'-T1 へ':r.status?'記録して T'+(s.cur.take+1)+' へ':'OK／仮OK／NG を選んでください')+'</button>';
+  h+='<div class="spacer"></div><button class="primary" data-act="commit"'+(r.status&&L.length?'':' disabled')+'>'+(!L.length?'収録カメラ（A／B）を点灯してください':r.status==='OK'&&!isIns(s.cur.cut)?'記録して C'+nextCut(s.cur.cut)+'-T1 へ':r.status?'記録して T'+(s.cur.take+1)+' へ':'OK／仮OK／NG を選んでください')+'</button>';
   return h;
 }
 
@@ -307,10 +312,17 @@ function vEdit(){
   if(d.status==='NG')h+='<div class="chips">'+REASONS.map(function(x){return '<button class="chip'+(d.reasons.indexOf(x)>=0?' on':'')+'" data-dreason="'+x+'">'+x+'</button>';}).join('')+'</div>';
   var dcs=d.cams||[];
   h+='<div class="camrow"><span class="lbl">収録カメラ</span>'+CAMS.map(function(x){return '<button class="camchip c'+x+(dcs.indexOf(x)>=0?' on':'')+'" data-dcam="'+x+'">'+x+'</button>';}).join('')+'</div>';
-  h+='<div class="g2">'+f('time','判定時刻',1)+f('media','メディア',1)+'</div>';
-  h+='<div class="g2">'+f('lensType','レンズ種類')+f('lens','焦点距離',1)+'</div>';
-  h+='<div class="g2">'+f('iris','絞り',1)+f('wb','WB',1)+'</div>';
-  h+='<div style="display:grid;grid-template-columns:1fr 2fr;gap:8px">'+f('nd','ND',1)+f('fx','エフェクト')+'</div>';
+  h+=f('time','判定時刻',1);
+  var ek=S.editCam,es=(d.camSets&&d.camSets[ek])||{},col=CAMCOL[ek]||'var(--line)';
+  function g(key,label,mono){return '<label style="display:flex;flex-direction:column;gap:4px"><span class="lbl">'+label+'</span><input class="inp'+(mono?' mono':'')+'" data-bind="dset.'+key+'" value="'+esc(es[key]==null?'':es[key])+'"></label>';}
+  if(dcs.length){
+    if(dcs.length>1)h+='<div class="camrow"><span class="lbl">設定を直すカメラ</span>'+dcs.map(function(x){return '<button class="camchip c'+x+(x===ek?' on':'')+'" data-ecam="'+x+'">'+x+'</button>';}).join('')+'</div>';
+    h+='<div style="border:2px solid '+col+';border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:8px"><div class="lbl" style="color:'+col+';font-weight:900">'+ek+' CAM の設定</div>';
+    h+='<div class="g2">'+g('media','メディア',1)+g('lensType','レンズ種類')+'</div>';
+    h+='<div class="g2">'+g('lens','焦点距離',1)+g('iris','絞り',1)+'</div>';
+    h+='<div class="g2">'+g('wb','WB',1)+g('nd','ND',1)+'</div>';
+    h+=g('fx','エフェクト')+'</div>';
+  }
   h+=f('memo','メモ');
   h+='<div class="note">記録 '+esc(d.createdLabel||'')+' ・ '+esc(d.cam)+' CAM'+(d.history&&d.history.length?'<br><span style="color:var(--keep)">修正 '+d.history.length+' 回（最終 '+esc(d.history[d.history.length-1].at)+'）・元の記録は履歴に残っています</span>':'')+'</div>';
   h+='<div class="spacer"></div><div style="display:grid;grid-template-columns:1fr 2fr;gap:8px"><button class="hold" id="holdDel" style="height:56px;border:1px solid var(--ng);border-radius:16px;background:transparent;color:var(--ng);font-size:14px;font-weight:700">長押しで削除</button><button class="hold" id="holdSave" style="height:56px;border:0;border-radius:16px;font-size:16px;font-weight:900;background:var(--tx);color:#000">長押しで保存（2秒）</button></div>';
@@ -368,7 +380,7 @@ function loadScriptObj(o){
 function vGuide(){
   return '<div class="top"><button class="pill" data-back="1">‹ 戻る</button><span class="h1">使い方</span><span style="width:60px"></span></div><div class="guide" style="display:flex;flex-direction:column;gap:12px">'+
   '<div class="card"><b>1. 撮影を始める</b>ホームの「新しい撮影を始める」で、撮影日・使うカメラ・最初のシーン／カット／テイクを決めます。</div>'+
-  '<div class="card"><b>2. テイクを記録する</b>OK／仮OK／NGを押すと、その時刻が記録されます。NGのときは理由を選び、「記録して次へ」で確定します。<br>・OK → カットが1つ進み、テイクは1に戻る<br>・仮OK／NG → テイクが1つ進む<br>・シーンを変えると、カットとテイクが1に戻る</div>'+
+  '<div class="card"><b>2. テイクを記録する</b>OK／仮OK／NGを押すと、その時刻が記録されます。NGのときは理由を選び、「記録して次へ」で確定します。<br>・OK → カットが1つ進み、テイクは1に戻る<br>・仮OK／NG → テイクが1つ進む<br>・シーンを変えると、カットとテイクが1に戻る<br>・カットの一番上の「インサート」はOKでもテイクが進むだけ<br>・同じシーン・カット・テイクがもう記録されているときは、記録前に確認が出ます</div>'+
   '<div class="card"><b>3. レンズ・絞り・WB・フィルター</b>記録画面のタイルから変更できます。前のテイクから変えた項目には黄色の「変更」が付きます。</div>'+
   '<div class="card"><b>4. 一覧・修正・削除</b>撮影日のカードを開くとその日の一覧。テイクをタップで修正（保存・削除は長押し）。撮影日ごと消すときは、ホームでカードを長押し。</div>'+
   '<div class="card"><b>5. 書き出し</b>一覧の「書き出し」でCSVを保存・共有できます。</div>'+
@@ -416,12 +428,12 @@ function renderSheet(){
   }else if(s.type==='wScene'||s.type==='wCut'){
     var isS=s.type==='wScene',max=99,scx=script();
     if(isS){max=150;if(scx)scx.scenes.forEach(function(q){max=Math.max(max,+q.no||0);});}
-    var nums=[];for(var i=1;i<=max;i++){var lab=String(i);if(isS&&scx){var fs=null;scx.scenes.forEach(function(q){if(q.no===String(i))fs=q;});if(fs)lab=i+'<small>'+esc(fs.head)+'</small>';}nums.push({v:i,label:lab});}
+    var nums=[];if(!isS)nums.push({v:'INS',label:'インサート'});for(var i=1;i<=max;i++){var lab=String(i);if(isS&&scx){var fs=null;scx.scenes.forEach(function(q){if(q.no===String(i))fs=q;});if(fs)lab=i+'<small>'+esc(fs.head)+'</small>';}nums.push({v:i,label:lab});}
     var sf=SFX.slice();if(sf.indexOf(s.x)<0)sf.push(s.x);
     var sfx=sf.map(function(x){return {v:x,label:x||'—'};});
     title=isS?'シーン':'カット';
     body='<div style="display:grid;grid-template-columns:3fr 1fr;gap:8px">'+wheelHtml('wN',nums,'番号')+wheelHtml('wX',sfx,'枝番')+'</div><button class="pill out" data-act="'+(isS?'manualScene':'manualCut')+'" style="justify-content:center;height:40px">手で入力する</button>';
-    W.push(['wN',nums,Math.max(0,Math.min(max,s.n)-1),function(v){S.sheet.n=v;}]);
+    W.push(['wN',nums,isS?Math.max(0,Math.min(max,s.n)-1):(s.n==='INS'?0:Math.max(1,Math.min(max,s.n))),function(v){S.sheet.n=v;}]);
     W.push(['wX',sfx,sf.indexOf(s.x),function(v){S.sheet.x=v;}]);
   }else if(s.type==='media'){
     title='メディア番号';
@@ -441,9 +453,13 @@ function renderSheet(){
     body+='<div class="sec">使うカメラ</div><div class="g3">'+CAMS.map(function(x){return '<button class="opt'+(s.cams[x]?' sel':'')+'" data-nscam="'+x+'">'+x+' CAM</button>';}).join('')+'</div>';
     body+='<div class="g3"><label style="display:flex;flex-direction:column;gap:6px"><span class="sec">シーン</span><input class="inp" id="nsScene" value="'+esc(s.scene)+'"></label><label style="display:flex;flex-direction:column;gap:6px"><span class="sec">カット</span><input class="inp" id="nsCut" value="'+esc(s.cut)+'"></label><label style="display:flex;flex-direction:column;gap:6px"><span class="sec">テイク</span><input class="inp" id="nsTake" inputmode="numeric" value="'+esc(s.take)+'"></label></div>';
     body+='<button class="primary" data-act="startShoot">記録を始める</button>';
+  }else if(s.type==='dup'){
+    var cu=D.settings.cur;title='同じテイクがあります';
+    body='<div class="note" style="font-size:15px;color:var(--tx)">S'+esc(cu.scene)+'-C'+esc(cu.cut)+'-T'+cu.take+' はもう記録されています。</div><button class="primary" data-act="dupNext" style="height:60px">T'+s.n+' として記録する</button><button class="pill out" data-act="dupKeep" style="justify-content:center;height:48px">T'+cu.take+' のまま記録する</button>';
   }else if(s.type==='export'){
     title='書き出し';
-    body='<div class="note">CSV（表計算・DaVinciでの照合用）です。「ファイルで保存・共有」でファイルアプリやLINEなどに送れます。「コピー」で文字として貼り付けることもできます。</div><textarea class="inp mono" id="csvText" style="height:180px;padding:10px;font-size:11px" readonly>'+esc(s.csv)+'</textarea><div class="g2"><button class="opt" data-act="saveCsv">ファイルで保存・共有</button><button class="opt" data-act="copyCsv">コピー</button></div>';
+    var cc=camCounts(D.days[S.dayKey]||{takes:[]});
+    body='<div class="sec">クリップ数</div><div class="g3">'+CAMS.map(function(k){return '<div class="box" style="border:2px solid '+(cc[k]?CAMCOL[k]:'var(--line)')+'"><span class="lbl">'+k+' CAM</span><span class="big">'+cc[k]+'</span></div>';}).join('')+'</div>'+'<div class="note">CSV（表計算・DaVinciでの照合用）です。「ファイルで保存・共有」でファイルアプリやLINEなどに送れます。「コピー」で文字として貼り付けることもできます。</div><textarea class="inp mono" id="csvText" style="height:180px;padding:10px;font-size:11px" readonly>'+esc(s.csv)+'</textarea><div class="g2"><button class="opt" data-act="saveCsv">ファイルで保存・共有</button><button class="opt" data-act="copyCsv">コピー</button></div>';
   }
   var done=(s.type==='text'||s.type==='pick'||s.type==='projects'||s.type==='sesDate'||s.type==='wScene'||s.type==='wCut'||s.type==='media')?'<button class="pill" data-act="sheetDone" style="background:var(--tx);color:#000;font-weight:700;height:40px">決定</button>':'<button class="pill" data-act="sheetClose" style="height:40px">閉じる</button>';
   layer.innerHTML='<div class="overlay" data-act="sheetBg"><div class="sheet" data-stop="1"><div style="display:flex;justify-content:space-between;align-items:center"><span class="h1">'+title+'</span>'+done+'</div>'+body+'</div></div>';
@@ -469,8 +485,9 @@ function go(v){if(v!==S.view)prevViews.push(S.view);S.view=v;if(v==='camera'||v=
 function back(){var v=prevViews.pop()||'home';S.view=v;render();}
 
 /* ---------- actions ---------- */
-function commit(){
+function commit(force){
   var s=D.settings,ses=s.session,k=s.activeCam,r=S.rec;if(!r.status)return;
+  if(!force&&takeTaken(s.cur.scene,s.cur.cut,s.cur.take)){openSheet({type:'dup',n:freeTake(s.cur.scene,s.cur.cut)});return;}
   var key=dayKey(ses.date),day=D.days[key];
   if(!day)day=D.days[key]={projectId:s.projectId,date:ses.date,takes:[],updatedAt:0};
   var Lc=lit();if(!Lc.length)return;k=Lc.indexOf(k)>=0?k:Lc[0];var snap=camSnap(Lc[0]),now=Date.now();
@@ -481,19 +498,21 @@ function commit(){
   if(t.status!=='NG')t.reasons=[];
   day.takes.push(t);day.updatedAt=now;
   s.lastCam[k]=clone(cam(k));
-  if(t.status==='OK'){s.cur.cut=nextCut(s.cur.cut);s.cur.take=1;}else s.cur.take+=1;
+  if(t.status==='OK'&&!isIns(s.cur.cut)){s.cur.cut=nextCut(s.cur.cut);s.cur.take=1;}else s.cur.take+=1;
   s.updatedAt=now;
   S.rec={status:null,reasons:{},memo:'',markedAt:null};
   persist([key,'settings']);render();toast('S'+t.scene+'-C'+t.cut+'-T'+t.take+' を記録しました');
 }
 function openEdit(id){
   var day=D.days[S.dayKey];if(!day)return;var t=day.takes.filter(function(x){return x.id===id;})[0];if(!t)return;
-  S.editId=id;S.draft=clone(t);if(S.draft.tstop==null)S.draft.tstop='';if(!S.draft.cams)S.draft.cams=[t.cam||'A'];if(S.draft.media==null)S.draft.media='';if(S.draft.time==null)S.draft.time='';if(S.draft.lensType==null)S.draft.lensType='';S.draft.take=String(t.take);go('edit');
+  S.editId=id;S.draft=clone(t);(function(d){if(!d.cams||!d.cams.length)d.cams=[(t.cam||'A').charAt(0)];if(!d.camSets)d.camSets={};d.cams.forEach(function(k,i){if(!d.camSets[k]){var o={cam:k};if(i===0)['media','lensType','lens','iris','wb','nd','fx'].forEach(function(f){o[f]=t[f]==null?'':t[f];});o.media=String(t.media||'').split('/').map(function(x){return x.trim();}).filter(function(x){return x.charAt(0).toUpperCase()===k;})[0]||(i===0&&String(t.media||'').indexOf('/')<0?String(t.media||''):'');d.camSets[k]=o;}});S.editCam=d.cams[0];})(S.draft);if(S.draft.tstop==null)S.draft.tstop='';if(!S.draft.cams)S.draft.cams=[t.cam||'A'];if(S.draft.media==null)S.draft.media='';if(S.draft.time==null)S.draft.time='';if(S.draft.lensType==null)S.draft.lensType='';S.draft.take=String(t.take);go('edit');
 }
 function saveEdit(){
   var day=D.days[S.dayKey];if(!day)return;var i=-1;day.takes.forEach(function(x,j){if(x.id===S.editId)i=j;});if(i<0)return;
   var old=day.takes[i],d=S.draft,b=clone(old);delete b.history;
-  var n=clone(old);['scene','cut','status','memo','time','media','lensType','lens','iris','wb','nd','fx'].forEach(function(k){n[k]=typeof d[k]==='string'?d[k].trim():d[k];});
+  var n=clone(old);['scene','cut','status','memo','time'].forEach(function(k){n[k]=typeof d[k]==='string'?d[k].trim():d[k];});
+  var ncs={};(d.cams||[]).forEach(function(k){var q=clone((d.camSets||{})[k]||{cam:k});Object.keys(q).forEach(function(f){if(typeof q[f]==='string')q[f]=q[f].trim();});ncs[k]=q;});
+  if(d.cams&&d.cams.length){n.camSets=ncs;var q0=ncs[d.cams[0]];['media','lensType','lens','iris','wb','nd','fx'].forEach(function(f){n[f]=q0[f]==null?'':q0[f];});['body','iso','shutter','fps'].forEach(function(f){if(q0[f]!=null)n[f]=q0[f];});n.media=d.cams.map(function(k){return String(ncs[k].media||'').trim();}).filter(Boolean).join(' / ');}
   n.take=parseInt(d.take,10)||old.take;if(d.cams&&d.cams.length){n.cams=d.cams.slice();n.cam=n.cams.join('+');}n.reasons=d.status==='NG'?d.reasons.slice():[];
   var f=old.fps||'24',a=parseTC(n.tcIn,f),o=parseTC(n.tcOut,f);n.inF=a;n.outF=o;
   var changed=JSON.stringify(b)!==JSON.stringify((function(){var c=clone(n);delete c.history;return c;})());
@@ -566,12 +585,13 @@ function csvOf(day){
     var r=[t.date,t.scene,t.cut,t.take,{OK:'OK',KEEP:'仮OK',NG:'NG'}[t.status],(t.reasons||[]).join('・'),t.time||'',t.cam];
     used.forEach(function(k){var q=csvCam(t,k);CSVF.forEach(function(f){r.push(q?(q[f[1]]||''):'');});});
     r.push(t.memo,(t.history||[]).length);return r;});
+  var cc=camCounts(day);rows.push([]);rows.push(['クリップ数'].concat(used.map(function(k){return k+' '+cc[k];})));
   return [head].concat(rows).map(function(r){return r.map(function(v){v=String(v==null?'':v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}).join(',');}).join('\n');
 }
-function setDeep(path,val){var p=path.split('.');if(p[0]==='rec')S.rec[p[1]]=val;else if(p[0]==='draft'&&S.draft)S.draft[p[1]]=val;}
+function setDeep(path,val){var p=path.split('.');if(p[0]==='rec')S.rec[p[1]]=val;else if(p[0]==='draft'&&S.draft)S.draft[p[1]]=val;else if(p[0]==='dset'&&S.draft&&S.editCam){var cs=S.draft.camSets||(S.draft.camSets={});(cs[S.editCam]||(cs[S.editCam]={}))[p[1]]=val;}}
 
 document.addEventListener('click',function(e){
-  var t=e.target.closest('[data-act],[data-go],[data-back],[data-day],[data-edit],[data-st],[data-reason],[data-dst],[data-dreason],[data-pick],[data-opt],[data-topt],[data-scene],[data-camsel],[data-field],[data-proj],[data-nscam],[data-roll],[data-mplus],[data-dcam],[data-tcfps],[data-nudge],[data-scn],[data-usescn],[data-sf]');
+  var t=e.target.closest('[data-act],[data-go],[data-back],[data-day],[data-edit],[data-st],[data-reason],[data-dst],[data-dreason],[data-pick],[data-opt],[data-topt],[data-scene],[data-camsel],[data-field],[data-proj],[data-nscam],[data-roll],[data-mplus],[data-dcam],[data-ecam],[data-tcfps],[data-nudge],[data-scn],[data-usescn],[data-sf]');
   if(!t){return;}
   var d=t.dataset,s=D.settings;
   if(d.act==='sheetBg'){if(e.target===t)closeSheet();return;}
@@ -580,7 +600,8 @@ document.addEventListener('click',function(e){
   if(d.sf){S.sfilter=d.sf;render();return;}
   if(d.roll){if(!s.rolling)lit();s.rolling[d.roll]=!s.rolling[d.roll];if(s.session)s.session.cams=lit();touchSettings();render();return;}
   if(d.mplus){var mi=document.getElementById('media'+d.mplus);if(mi)mi.value=incMedia(mi.value.trim().toUpperCase());return;}
-  if(d.dcam){var dc=S.draft.cams||(S.draft.cams=[]),di=dc.indexOf(d.dcam);if(di>=0)dc.splice(di,1);else dc.push(d.dcam);dc.sort();render();return;}
+  if(d.ecam){S.editCam=d.ecam;render();return;}
+  if(d.dcam){var dc=S.draft.cams||(S.draft.cams=[]),di=dc.indexOf(d.dcam);if(di>=0)dc.splice(di,1);else{dc.push(d.dcam);var dcs2=S.draft.camSets||(S.draft.camSets={});if(!dcs2[d.dcam])dcs2[d.dcam]=camSnap(d.dcam);S.editCam=d.dcam;}dc.sort();if(dc.indexOf(S.editCam)<0)S.editCam=dc[0];render();return;}
   if(d.go){go(d.go);return;}
   if(d.back){if(d.back==='day'){S.draft=null;}back();return;}
   if(d.day){if(Date.now()-dayBlock<800)return;S.dayKey=d.day;S.scene='all';go('day');return;}
@@ -602,7 +623,7 @@ document.addEventListener('click',function(e){
   if(d.proj){s.projectId=d.proj;touchSettings();closeSheet();return;}
   if(d.nscam){S.sheet.cams[d.nscam]=!S.sheet.cams[d.nscam];readNewShoot();renderSheet();return;}
   switch(d.act){
-    case 'sheetDone':if(S.sheet&&(S.sheet.type==='wScene'||S.sheet.type==='wCut')){applyCur(S.sheet.type==='wScene'?'scene':'cut',String(S.sheet.n)+S.sheet.x);closeSheet();}
+    case 'sheetDone':if(S.sheet&&(S.sheet.type==='wScene'||S.sheet.type==='wCut')){applyCur(S.sheet.type==='wScene'?'scene':'cut',(S.sheet.n==='INS'?'インサート':String(S.sheet.n))+S.sheet.x);closeSheet();}
       else if(S.sheet&&S.sheet.type==='media'){CAMS.forEach(function(x){var el=document.getElementById('media'+x);if(el)cam(x).media=el.value.trim().toUpperCase();});touchSettings();closeSheet();}
       else if(S.sheet&&S.sheet.type==='sesDate'){var dv=document.getElementById('sesDateInp').value;if(dv&&s.session){s.session.date=dv;touchSettings();toast('撮影日を '+fmtDate(dv)+' にしました');}closeSheet();}
       else if(S.sheet&&S.sheet.type==='text'){var si=document.getElementById('sheetInput');if(si)S.sheet.value=si.value;applyText();}else closeSheet();break;
@@ -617,7 +638,7 @@ document.addEventListener('click',function(e){
       s.session={projectId:s.projectId,date:ns.date,cams:cs};s.rolling={A:cs.indexOf('A')>=0,B:cs.indexOf('B')>=0,C:cs.indexOf('C')>=0};s.activeCam=cs[0];s.cur={scene:ns.scene.trim()||'1',cut:ns.cut.trim()||'1',take:parseInt(ns.take,10)||1};touchSettings();S.sheet=null;layer.innerHTML='';prevViews=['home'];S.view='record';render();break;
     case 'editDate':openSheet({type:'sesDate',value:(s.session&&s.session.date)||today()});break;
     case 'editScene':var sp=splitNo(s.cur.scene);openSheet({type:'wScene',n:sp.n,x:sp.x});break;
-    case 'editCut':var cp=splitNo(s.cur.cut);openSheet({type:'wCut',n:cp.n,x:cp.x});break;
+    case 'editCut':var cp=isIns(s.cur.cut)?{n:'INS',x:String(s.cur.cut).slice(5)}:splitNo(s.cur.cut);openSheet({type:'wCut',n:cp.n,x:cp.x});break;
     case 'manualScene':openSheet({type:'text',title:'シーン',target:'cur',key:'scene',value:s.cur.scene});break;
     case 'manualCut':openSheet({type:'text',title:'カット',target:'cur',key:'cut',value:s.cur.cut});break;
     case 'media':openSheet({type:'media'});break;
@@ -628,6 +649,8 @@ document.addEventListener('click',function(e){
     case 'tcOut':var g=tcFrames(s.activeCam);S.rec.outF=g;S.rec.tcOut=fmtTC(g,cam().fps);render();break;
     case 'swapCam':var Ls=lit();if(Ls.length>1){s.activeCam=Ls[(Ls.indexOf(s.activeCam)+1)%Ls.length];touchSettings();render();}else{S.camSel=s.activeCam;go('camera');}break;
     case 'commit':commit();break;
+    case 'dupNext':var dn=S.sheet.n;closeSheet();s.cur.take=dn;commit(true);break;
+    case 'dupKeep':closeSheet();commit(true);break;
     case 'useCam':s.activeCam=S.camSel||s.activeCam;if(s.session&&s.session.cams.indexOf(s.activeCam)<0)s.session.cams.push(s.activeCam);touchSettings();if(s.session){S.view='record';render();}else back();break;
     case 'tcNow':var k=S.camSel||s.activeCam,inp=document.getElementById('camTC'),fr=parseTC(inp.value,cam(k).fps);S.tcDraft=inp.value;
       if(fr==null){toast('TCは「時分秒」6桁か「時分秒フレーム」8桁で入れてください');return;}
