@@ -290,6 +290,7 @@ function vDayInner(){
   var scenes=[];day.takes.forEach(function(t){if(scenes.indexOf(t.scene)<0)scenes.push(t.scene);});
   h+='<div class="chips"><button class="chip'+(S.scene==='all'?' sel':'')+'" data-scene="all">すべて</button>'+scenes.map(function(x){return '<button class="chip'+(S.scene===x?' sel':'')+'" data-scene="'+esc(x)+'">S'+esc(x)+'</button>';}).join('')+'</div>';
   var ts=day.takes.filter(function(t){return S.scene==='all'||t.scene===S.scene;}).slice().sort(function(a,b){return b.createdAt-a.createdAt;});
+  h+='<button class="pill out" data-act="insTake" style="justify-content:center;height:48px;font-weight:700">＋ 記入漏れのテイクを挿入</button>';
   var c={OK:0,KEEP:0,NG:0};ts.forEach(function(t){c[t.status]++;});
   h+='<div class="sec" style="display:flex;gap:12px"><span><b style="color:var(--ok)">OK</b> '+c.OK+'</span><span><b style="color:var(--keep)">仮OK</b> '+c.KEEP+'</span><span><b style="color:var(--ng)">NG</b> '+c.NG+'</span><span style="margin-left:auto">タップで編集</span></div>';
   var last='';
@@ -298,7 +299,7 @@ function vDayInner(){
     if(g!==last){h+='<div class="grp">'+esc(g)+'</div>';last=g;}
     var col={OK:'var(--ok)',KEEP:'var(--keep)',NG:'var(--ng)'}[t.status];
     var note=[(t.reasons||[]).join('・'),t.memo].filter(Boolean).join(' ／ ');
-    h+='<button class="row" data-edit="'+t.id+'"><span class="bar" style="background:'+col+'"></span><span class="code">'+esc(t.cut)+'-'+t.take+'</span><span class="badge b-'+t.status+'" style="min-width:40px;text-align:center">'+({OK:'OK',KEEP:'仮OK',NG:'NG'}[t.status])+'</span><span class="lbl mono" style="min-width:24px">'+esc(t.cam||'')+'</span><span class="note">'+esc(note||((t.lensType?t.lensType+' ':'')+t.lens+' '+t.iris+' '+(t.nd&&t.nd!=='なし'?'ND '+t.nd:'NDなし')))+(t.history&&t.history.length?' <span style="color:var(--keep)">修正済</span>':'')+'</span><span class="mono sec">'+esc(t.time||durOf(t))+'</span></button>';
+    h+='<button class="row" data-edit="'+t.id+'"><span class="bar" style="background:'+col+'"></span><span class="code">'+esc(t.cut)+'-'+t.take+'</span><span class="badge b-'+t.status+'" style="min-width:40px;text-align:center">'+({OK:'OK',KEEP:'仮OK',NG:'NG'}[t.status])+'</span><span class="lbl mono" style="min-width:24px">'+esc(t.cam||'')+'</span><span class="note">'+esc(note||((t.lensType?t.lensType+' ':'')+t.lens+' '+t.iris+' '+(t.nd&&t.nd!=='なし'?'ND '+t.nd:'NDなし')))+(t.added?' <span style="color:#7FD3FF">挿入</span>':'')+(t.history&&t.history.length?' <span style="color:var(--keep)">修正済</span>':'')+'</span><span class="mono sec">'+esc(t.time||durOf(t))+'</span></button>';
   });
   return h;
 }
@@ -306,8 +307,10 @@ function vDayInner(){
 function vEdit(){
   var d=S.draft;if(!d)return '';
   function f(key,label,mono){return '<label style="display:flex;flex-direction:column;gap:4px"><span class="lbl">'+label+'</span><input class="inp'+(mono?' mono':'')+'" data-bind="draft.'+key+'" value="'+esc(d[key])+'"></label>';}
-  var h='<div class="top"><button class="pill" data-back="day">‹ 一覧</button><span class="h1">テイク編集</span><span class="sec">撮影 '+fmtDate(d.date)+'</span></div>';
+  var h='<div class="top"><button class="pill" data-back="day">‹ 一覧</button><span class="h1">'+(S.editId==='__new'?'テイクを挿入':'テイク編集')+'</span><span class="sec">撮影 '+fmtDate(d.date)+'</span></div>';
   h+='<div class="g3">'+f('scene','シーン')+f('cut','カット')+f('take','テイク')+'</div>';
+  var dday=D.days[S.dayKey];if(dday&&dday.takes.some(function(x){return x.id!==S.editId&&String(x.scene)===String(d.scene).trim()&&String(x.cut)===String(d.cut).trim()&&+x.take===+d.take;}))h+='<div style="border:1.5px solid var(--ng);color:var(--ng);border-radius:12px;padding:8px 12px;font-weight:700;font-size:14px">S'+esc(d.scene)+'-C'+esc(d.cut)+'-T'+esc(d.take)+' はもう記録されています</div>';
+  if(S.editId==='__new')h+='<div class="note">判定時刻の順に一覧・CSVに入ります。だいたいの時刻を入れてください。</div>';
   h+='<div class="g3"><button class="st ok'+(d.status==='OK'?' on':'')+'" data-dst="OK" style="height:56px">OK</button><button class="st keep'+(d.status==='KEEP'?' on':'')+'" data-dst="KEEP" style="height:56px">仮OK</button><button class="st ng'+(d.status==='NG'?' on':'')+'" data-dst="NG" style="height:56px">NG</button></div>';
   if(d.status==='NG')h+='<div class="chips">'+REASONS.map(function(x){return '<button class="chip'+(d.reasons.indexOf(x)>=0?' on':'')+'" data-dreason="'+x+'">'+x+'</button>';}).join('')+'</div>';
   var dcs=d.cams||[];
@@ -325,6 +328,7 @@ function vEdit(){
   }
   h+=f('memo','メモ');
   h+='<div class="note">記録 '+esc(d.createdLabel||'')+' ・ '+esc(d.cam)+' CAM'+(d.history&&d.history.length?'<br><span style="color:var(--keep)">修正 '+d.history.length+' 回（最終 '+esc(d.history[d.history.length-1].at)+'）・元の記録は履歴に残っています</span>':'')+'</div>';
+  if(S.editId==='__new'){h+='<div class="spacer"></div><button class="hold" id="holdSave" style="height:56px;border:0;border-radius:16px;font-size:16px;font-weight:900;background:var(--tx);color:#000">長押しで挿入（2秒）</button>';return h;}
   h+='<div class="spacer"></div><div style="display:grid;grid-template-columns:1fr 2fr;gap:8px"><button class="hold" id="holdDel" style="height:56px;border:1px solid var(--ng);border-radius:16px;background:transparent;color:var(--ng);font-size:14px;font-weight:700">長押しで削除</button><button class="hold" id="holdSave" style="height:56px;border:0;border-radius:16px;font-size:16px;font-weight:900;background:var(--tx);color:#000">長押しで保存（2秒）</button></div>';
   return h;
 }
@@ -503,18 +507,29 @@ function commit(force){
   S.rec={status:null,reasons:{},memo:'',markedAt:null};
   persist([key,'settings']);render();toast('S'+t.scene+'-C'+t.cut+'-T'+t.take+' を記録しました');
 }
-function openEdit(id){
-  var day=D.days[S.dayKey];if(!day)return;var t=day.takes.filter(function(x){return x.id===id;})[0];if(!t)return;
-  S.editId=id;S.draft=clone(t);(function(d){if(!d.cams||!d.cams.length)d.cams=[(t.cam||'A').charAt(0)];if(!d.camSets)d.camSets={};d.cams.forEach(function(k,i){if(!d.camSets[k]){var o={cam:k};if(i===0)['media','lensType','lens','iris','wb','nd','fx'].forEach(function(f){o[f]=t[f]==null?'':t[f];});o.media=String(t.media||'').split('/').map(function(x){return x.trim();}).filter(function(x){return x.charAt(0).toUpperCase()===k;})[0]||(i===0&&String(t.media||'').indexOf('/')<0?String(t.media||''):'');d.camSets[k]=o;}});S.editCam=d.cams[0];})(S.draft);if(S.draft.tstop==null)S.draft.tstop='';if(!S.draft.cams)S.draft.cams=[t.cam||'A'];if(S.draft.media==null)S.draft.media='';if(S.draft.time==null)S.draft.time='';if(S.draft.lensType==null)S.draft.lensType='';S.draft.take=String(t.take);go('edit');
+function openEdit(id,tObj){
+  var day=D.days[S.dayKey];if(!day)return;var t=tObj||day.takes.filter(function(x){return x.id===id;})[0];if(!t)return;
+  S.newTake=tObj||null;S.editId=tObj?'__new':id;S.draft=clone(t);(function(d){if(!d.cams||!d.cams.length)d.cams=[(t.cam||'A').charAt(0)];if(!d.camSets)d.camSets={};d.cams.forEach(function(k,i){if(!d.camSets[k]){var o={cam:k};if(i===0)['media','lensType','lens','iris','wb','nd','fx'].forEach(function(f){o[f]=t[f]==null?'':t[f];});o.media=String(t.media||'').split('/').map(function(x){return x.trim();}).filter(function(x){return x.charAt(0).toUpperCase()===k;})[0]||(i===0&&String(t.media||'').indexOf('/')<0?String(t.media||''):'');d.camSets[k]=o;}});S.editCam=d.cams[0];})(S.draft);if(S.draft.tstop==null)S.draft.tstop='';if(!S.draft.cams)S.draft.cams=[t.cam||'A'];if(S.draft.media==null)S.draft.media='';if(S.draft.time==null)S.draft.time='';if(S.draft.lensType==null)S.draft.lensType='';S.draft.take=String(t.take);go('edit');
 }
+function openInsert(){
+  var day=D.days[S.dayKey];if(!day)return;var ls=day.takes.slice().sort(function(a,b){return b.createdAt-a.createdAt;})[0];
+  var s=D.settings,Lc=s.session&&s.session.projectId===s.projectId?lit():[];if(!Lc.length)Lc=ls&&ls.cams&&ls.cams.length?ls.cams.slice():['A'];
+  var t={id:'__new',date:day.date,scene:ls?String(ls.scene):String(s.cur.scene),cut:ls?String(ls.cut):String(s.cur.cut),take:1,status:'OK',reasons:[],memo:'',time:ls&&ls.time?ls.time:clock(Date.now()),history:[],cams:Lc,cam:Lc.join('+'),camSets:{}};
+  Lc.forEach(function(k){var q=ls&&ls.camSets&&ls.camSets[k];t.camSets[k]=q?clone(q):camSnap(k);});var q0=t.camSets[Lc[0]];for(var x in q0)if(x!=='cam')t[x]=q0[x];
+  var m=0;day.takes.forEach(function(x){if(String(x.scene)===t.scene&&String(x.cut)===t.cut)m=Math.max(m,+x.take||0);});t.take=m+1;
+  openEdit(null,t);
+}
+function timeMs(date,tm){var a=String(date||'').split('-'),b=String(tm||'').match(/(\d{1,2})\D?(\d{2})?\D?(\d{2})?/);if(a.length<3||!b)return null;return new Date(+a[0],+a[1]-1,+a[2],+b[1],+(b[2]||0),+(b[3]||0)).getTime();}
 function saveEdit(){
-  var day=D.days[S.dayKey];if(!day)return;var i=-1;day.takes.forEach(function(x,j){if(x.id===S.editId)i=j;});if(i<0)return;
-  var old=day.takes[i],d=S.draft,b=clone(old);delete b.history;
+  var day=D.days[S.dayKey];if(!day)return;var i=-1,isNew=S.editId==='__new';day.takes.forEach(function(x,j){if(x.id===S.editId)i=j;});if(i<0&&!isNew)return;
+  var old=isNew?S.newTake:day.takes[i],d=S.draft,b=clone(old);delete b.history;
   var n=clone(old);['scene','cut','status','memo','time'].forEach(function(k){n[k]=typeof d[k]==='string'?d[k].trim():d[k];});
   var ncs={};(d.cams||[]).forEach(function(k){var q=clone((d.camSets||{})[k]||{cam:k});Object.keys(q).forEach(function(f){if(typeof q[f]==='string')q[f]=q[f].trim();});ncs[k]=q;});
   if(d.cams&&d.cams.length){n.camSets=ncs;var q0=ncs[d.cams[0]];['media','lensType','lens','iris','wb','nd','fx'].forEach(function(f){n[f]=q0[f]==null?'':q0[f];});['body','iso','shutter','fps'].forEach(function(f){if(q0[f]!=null)n[f]=q0[f];});n.media=d.cams.map(function(k){return String(ncs[k].media||'').trim();}).filter(Boolean).join(' / ');}
   n.take=parseInt(d.take,10)||old.take;if(d.cams&&d.cams.length){n.cams=d.cams.slice();n.cam=n.cams.join('+');}n.reasons=d.status==='NG'?d.reasons.slice():[];
   var f=old.fps||'24',a=parseTC(n.tcIn,f),o=parseTC(n.tcOut,f);n.inF=a;n.outF=o;
+  if(isNew){var ms=timeMs(day.date,n.time)||Date.now(),now2=Date.now();while(day.takes.some(function(x){return x.createdAt===ms;}))ms++;n.id=uid('t');n.createdAt=ms;n.markedAt=ms;n.updatedAt=now2;n.added=true;n.history=[];n.createdLabel='後から挿入 '+nowStamp();n.take=parseInt(d.take,10)||1;
+    day.takes.push(n);day.updatedAt=now2;persist([S.dayKey]);S.draft=null;S.newTake=null;back();toast('S'+n.scene+'-C'+n.cut+'-T'+n.take+' を挿入しました');return;}
   var changed=JSON.stringify(b)!==JSON.stringify((function(){var c=clone(n);delete c.history;return c;})());
   if(!changed){toast('変更はありません');return;}
   n.history=(old.history||[]).concat([{at:nowStamp(),before:b}]);n.updatedAt=Date.now();
@@ -527,7 +542,7 @@ function deleteTake(){
 }
 var holdT=null;
 function wireHold(){
-  [['holdSave','var(--ok)','var(--tx)',saveEdit,'保存中… 指を離すと取消','長押しで保存（2秒）'],['holdDel','var(--ng)','transparent',deleteTake,'削除中…','長押しで削除']].forEach(function(cfg){
+  [['holdSave','var(--ok)','var(--tx)',saveEdit,'保存中… 指を離すと取消',S.editId==='__new'?'長押しで挿入（2秒）':'長押しで保存（2秒）'],['holdDel','var(--ng)','transparent',deleteTake,'削除中…','長押しで削除']].forEach(function(cfg){
     var el=document.getElementById(cfg[0]);if(!el)return;
     function reset(){clearInterval(holdT);holdT=null;el.style.background=cfg[2];el.textContent=cfg[5];if(cfg[0]==='holdDel')el.style.color='var(--ng)';}
     el.addEventListener('pointerdown',function(e){e.preventDefault();clearInterval(holdT);var t0=Date.now();el.textContent=cfg[4];if(cfg[0]==='holdDel')el.style.color='#000';
@@ -649,6 +664,7 @@ document.addEventListener('click',function(e){
     case 'tcOut':var g=tcFrames(s.activeCam);S.rec.outF=g;S.rec.tcOut=fmtTC(g,cam().fps);render();break;
     case 'swapCam':var Ls=lit();if(Ls.length>1){s.activeCam=Ls[(Ls.indexOf(s.activeCam)+1)%Ls.length];touchSettings();render();}else{S.camSel=s.activeCam;go('camera');}break;
     case 'commit':commit();break;
+    case 'insTake':openInsert();break;
     case 'dupNext':var dn=S.sheet.n;closeSheet();s.cur.take=dn;commit(true);break;
     case 'dupKeep':closeSheet();commit(true);break;
     case 'useCam':s.activeCam=S.camSel||s.activeCam;if(s.session&&s.session.cams.indexOf(s.activeCam)<0)s.session.cams.push(s.activeCam);touchSettings();if(s.session){S.view='record';render();}else back();break;
@@ -676,6 +692,7 @@ document.addEventListener('input',function(e){
   if(t.dataset.cbind&&S.sheet){cam(S.sheet.cam)[t.dataset.cbind]=t.value;D.settings.updatedAt=Date.now();clearTimeout(t._sv);t._sv=setTimeout(function(){touchSettings();},500);}
 });
 document.addEventListener('change',function(e){
+  if(S.view==='edit'&&/^draft\.(scene|cut|take)$/.test(e.target.dataset.bind||'')){render();return;}
   if(e.target.id==='restoreFile'&&e.target.files[0]){var rf=new FileReader();rf.onload=function(){try{var o=JSON.parse(rf.result);if(!o.settings||!o.days)throw 0;if(!o.scripts)o.scripts={};D=o;persist();S.view='home';prevViews=[];render();toast('バックアップを読み込みました');}catch(x){toast('バックアップファイルを読めませんでした');}};rf.readAsText(e.target.files[0]);return;}
   if(e.target.id!=='scriptFile'||!e.target.files[0])return;
   var fr=new FileReader();fr.onload=function(){try{loadScriptObj(JSON.parse(fr.result));}catch(x){toast('台本データを読めませんでした');}};fr.readAsText(e.target.files[0]);
