@@ -1,5 +1,5 @@
 // 9029スクリプト オフライン用。アプリを更新したら VERSION の数字を上げてください。
-const VERSION = '9029script-v16';
+const VERSION = '9029script-v17';
 const FILES = ['./', './index.html', './manifest.webmanifest', './logo.png', './icon-180.png', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

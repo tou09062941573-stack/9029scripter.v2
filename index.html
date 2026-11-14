@@ -555,16 +555,16 @@ function shareFile(name,text,type){
   function dl(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:type}));a.download=safe;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1000);toast('保存しました');}
 }
 var CSVF=[['メディア','media'],['ボディ','body'],['レンズ種類','lensType'],['レンズ','lens'],['絞り','iris'],['WB','wb'],['ND','nd'],['エフェクト','fx'],['ISO','iso'],['シャッター','shutter'],['fps','fps']];
-function camSnap(t,k){var cs=t.cams&&t.cams.length?t.cams:[(t.cam||'A').charAt(0)];if(cs.indexOf(k)<0)return null;var q=t.camSets&&t.camSets[k];if(q)return q;return cs[0]===k?t:null;}
+function csvCam(t,k){var cs=t.cams&&t.cams.length?t.cams:[(t.cam||'A').charAt(0)];if(cs.indexOf(k)<0)return null;var q=t.camSets&&t.camSets[k];if(q)return q;return cs[0]===k?t:null;}
 function csvOf(day){
   var takes=day.takes.slice().sort(function(a,b){return a.createdAt-b.createdAt;});
-  var used=CAMS.filter(function(k){return k==='A'||takes.some(function(t){return camSnap(t,k);});});
+  var used=CAMS.filter(function(k){return k==='A'||takes.some(function(t){return csvCam(t,k);});});
   var head=['撮影日','シーン','カット','テイク','判定','NG理由','判定時刻','カメラ'];
   used.forEach(function(k){CSVF.forEach(function(f){head.push(k+' '+f[0]);});});
   head.push('メモ','修正');
   var rows=takes.map(function(t){
     var r=[t.date,t.scene,t.cut,t.take,{OK:'OK',KEEP:'仮OK',NG:'NG'}[t.status],(t.reasons||[]).join('・'),t.time||'',t.cam];
-    used.forEach(function(k){var q=camSnap(t,k);CSVF.forEach(function(f){r.push(q?(q[f[1]]||''):'');});});
+    used.forEach(function(k){var q=csvCam(t,k);CSVF.forEach(function(f){r.push(q?(q[f[1]]||''):'');});});
     r.push(t.memo,(t.history||[]).length);return r;});
   return [head].concat(rows).map(function(r){return r.map(function(v){v=String(v==null?'':v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}).join(',');}).join('\n');
 }
